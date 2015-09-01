@@ -1,5 +1,11 @@
 package net.camtech.fopmremastered.commands;
 
+// THIS IS A MESSAGE FOR LEMON;
+// LEMON, HOW DARE YOU..?
+// DON'T EDIT MY COMMAND WITHOUT PERMISSION, IF YA WANT TO PREVENT YOU OR HORSE BEING VJHAMMERED, THEN I'LL BE IMMUNE AS WELL.
+// I AM NOW ADDED, THE END ;)
+
+
 import static me.StevenLawson.BukkitTelnet.BukkitTelnet.plugin;
 import net.camtech.fopmremastered.FOPMR_Bans;
 import net.camtech.fopmremastered.FOPMR_Rank;
@@ -34,7 +40,7 @@ public class Command_vj extends FOPMR_Command
             String name = args[0];
             Player player = FOPMR_Rank.getPlayer(args[0]);
             if(player.getName().equals("OxLemonxO") | player.getName().equals("DarkHorse108")) {
-                Bukkit.broadcastMessage(ChatColor.DARK_GRAY + "[" + ChatColor.YELLOW + "LFM" + ChatColor.DARK_GRAY + "] " + ChatColor.DARK_RED + "vj13573 has tried to doom the co-owner or the owner.");
+                Bukkit.broadcastMessage(ChatColor.DARK_GRAY + "[" + ChatColor.YELLOW + "LFM" + ChatColor.DARK_GRAY + "] " + ChatColor.DARK_RED + sender.getName() + " has tried to doom the co-owner or the owner.");
                 return false;
             }
          
