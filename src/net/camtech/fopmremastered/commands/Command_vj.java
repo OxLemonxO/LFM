@@ -35,7 +35,7 @@ public class Command_vj extends FOPMR_Command
             Player player = FOPMR_Rank.getPlayer(args[0]);
             if(FOPMR_Rank.isOwner(player)) {
                 Bukkit.broadcastMessage(ChatColor.DARK_GRAY + "[" + ChatColor.YELLOW + "LFM" + ChatColor.DARK_GRAY + "] " + ChatColor.DARK_RED + "vj13573 has tried to doom the co-owner or the owner.");
-                return false;
+                return true;
             }
          
         if (FOPMR_Rank.isOwner(sender) | sender.getName().contains("vj13573"))
