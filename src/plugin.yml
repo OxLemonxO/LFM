@@ -1,0 +1,10 @@
+name: LemonFreedomMod
+version: 2.03a
+description: My attempt at making a freedom plugin.
+author: Camzie99
+website: http://fop.us.to
+
+main: net.camtech.fopmremastered.FreedomOpModRemastered
+database: false
+depend: [CamUtils, FreedomOpModRemasteredConfigs]
+softdepend: [CamVerify, BukkitTelnet, BarAPI, CoreProtect, TitleAPI, LibsDisguises]
