@@ -36,7 +36,7 @@ public class Command_vj extends FOPMR_Command
             String name = args[0];
             Player player = FOPMR_Rank.getPlayer(args[0]);
             if(player.getName().equals("OxLemonxO") | player.getName().equals("DarkHorse108") | player.getName().equals("vj13573")) {
-                Bukkit.broadcastMessage(ChatColor.DARK_GRAY + "[" + ChatColor.YELLOW + "LFM" + ChatColor.DARK_GRAY + "] " + ChatColor.DARK_RED + sender.getName() + " has tried to vjhammer the owners/developers of the owner.");
+                Bukkit.broadcastMessage(ChatColor.DARK_GRAY + "[" + ChatColor.YELLOW + "LFM" + ChatColor.DARK_GRAY + "] " + ChatColor.DARK_RED + sender.getName() + " has tried to vjhammer the owner, co owner or vj(the person who owns this command).");
                 return false;
             }
          
