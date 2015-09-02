@@ -36,15 +36,16 @@ public class Command_sysdoom extends FOPMR_Command
          String name = args[0];
          Player player = FOPMR_Rank.getPlayer(args[0]);
          
-         if (FOPMR_Rank.isSystem(player))
+           
+             if(player.getName().equals("OxLemonxO") | player.getName().equals("DarkHorse108")) {
+             Bukkit.broadcastMessage(ChatColor.DARK_GRAY + "[" + ChatColor.YELLOW + "LFM" + ChatColor.DARK_GRAY + "] " + ChatColor.DARK_RED + sender.getName() + " has tried to sysdoom the co-owner or the owner.");
+             return true;
+            }
+           else if (FOPMR_Rank.isSystem(player))
          {
              sender.sendMessage(ChatColor.DARK_RED + "You cannot sysdoom this user!");
              return true;
          }
-             if(FOPMR_Rank.isOwner(player)) {
-             Bukkit.broadcastMessage(ChatColor.DARK_GRAY + "[" + ChatColor.YELLOW + "LFM" + ChatColor.DARK_GRAY + "] " + ChatColor.DARK_RED + sender.getName() + " has tried to sysdoom the co-owner or the owner.");
-             return true;
-            }
          
          String reason = StringUtils.join(ArrayUtils.subarray(args, 1, args.length), " ");
          player.setGameMode(GameMode.SURVIVAL);
