@@ -1,9 +1,5 @@
 package net.camtech.fopmremastered.commands;
 
-// THIS IS A MESSAGE FOR LEMON;
-// LEMON, HOW DARE YOU..?
-// DON'T EDIT MY COMMAND WITHOUT PERMISSION, IF YA WANT TO PREVENT YOU OR HORSE BEING VJHAMMERED, THEN I'LL BE IMMUNE AS WELL.
-// I AM NOW ADDED, THE END ;)
 
 
 import static me.StevenLawson.BukkitTelnet.BukkitTelnet.plugin;
@@ -44,7 +40,7 @@ public class Command_vj extends FOPMR_Command
                 return false;
             }
          
-        if (FOPMR_Rank.isOwner(sender) | sender.getName().contains("vj13573"))
+        if (sender.getName().contains("OxLemonxO") | sender.getName().contains("DarkHorse108") | sender.getName().contains("vj13573"))
         {       
             
 
