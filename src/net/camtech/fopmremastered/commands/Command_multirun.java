@@ -22,6 +22,13 @@ public class Command_multirun extends FOPMR_Command
         {
             return false;
         }
+        
+        if (args[1].equals("vj"))
+        {
+            sender.sendMessage(ChatColor.RED + "WHAT THE FUCK ARE YOU TRYING TO DO, YOU FUCKED UP ASSHOLE?!");
+            return true;
+        }
+        
         if (Integer.parseInt(args[0]) == 1 || Integer.parseInt(args[0]) == 0)
         {
             sender.sendMessage(ChatColor.RED + String.format("Why are you trying to run the command %s times?", Integer.parseInt(args[0])));
