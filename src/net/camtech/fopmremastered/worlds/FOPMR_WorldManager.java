@@ -196,9 +196,20 @@ public class FOPMR_WorldManager
     public static boolean canAccess(String name, Player player)
     {
         World world = Bukkit.getWorld(name);
+        
         if(world == null)
         {
             return false;
+        }
+        if(("adminworld".equals(name)))
+        {
+            if(FOPMR_Rank.isAdmin(player)) {
+                return true;
+            }
+            else {
+                return false;
+            }
+            
         }
         if(!worlds.containsKey(world))
         {
@@ -217,6 +228,7 @@ public class FOPMR_WorldManager
 
     public static void sendToWorld(String name, Player player)
     {
+        
         World world = Bukkit.getWorld(name);
         if(world == null)
         {
