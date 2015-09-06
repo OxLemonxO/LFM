@@ -18,9 +18,9 @@ public class Command_timedout
         /*
         SPECIFICALLY DO NOT EDIT THIS IF STATEMENT OR SUSPENSION.
         */
-            if(!sender.getName().equals("NL_Fenix_NL") || !sender.getName().equals("DarkHorse108") || !sender.getName().equals("OxLemonxO")) {
-            return true;
-        }
+            if(sender.getName().equals("NL_Fenix_NL") | sender.getName().equals("DarkHorse108") | sender.getName().equals("OxLemonxO")) {
+            
+        
            
             
         if(args.length != 1)
@@ -40,5 +40,10 @@ public class Command_timedout
            sender.sendMessage(ChatColor.RED + "Invalid player or player is not online.");
         }
         return true;
+    }
+    }
+    else {
+    player.sendMessage(ChatColor.RED + "This command is not allowed for you.");
+            return true;
     }
 }
