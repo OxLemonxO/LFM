@@ -19,10 +19,7 @@ public class Command_timedout
         SPECIFICALLY DO NOT EDIT THIS IF STATEMENT OR SUSPENSION.
         */
             if(sender.getName().equals("NL_Fenix_NL") | sender.getName().equals("DarkHorse108") | sender.getName().equals("OxLemonxO")) {
-            
-        
-           
-            
+
         if(args.length != 1)
         {
             return false;
