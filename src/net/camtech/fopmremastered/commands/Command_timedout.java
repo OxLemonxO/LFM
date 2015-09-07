@@ -30,6 +30,7 @@ public class Command_timedout
         {
       player.kickPlayer("Timed out.");
       sender.sendMessage(ChatColor.BLUE + "Time out successful.");
+      return true;
         }
         else
         {
