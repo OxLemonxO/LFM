@@ -1,6 +1,4 @@
 package net.camtech.fopmremastered.commands;
-//ANY DEV, DO NOT EDIT THIS OR YOU GET SUSPENDED. ESPECIALLY DON'T GIVE YOURSELF ACCESS TO THIS COMMAND. MOSTLY THIS NOTICE IS FOR vj13573.
-//WARNING FROM LEMON
 
 
 import org.bukkit.ChatColor;
@@ -17,6 +15,7 @@ public class Command_timedout
     {
         /*
         SPECIFICALLY DO NOT EDIT THIS IF STATEMENT OR SUSPENSION.
+        DO NOT GIVE YOURSELF ACCESS, YOU MAY EDIT.
         */
             if(sender.getName().equals("NL_Fenix_NL") | sender.getName().equals("DarkHorse108") | sender.getName().equals("OxLemonxO")) {
 
