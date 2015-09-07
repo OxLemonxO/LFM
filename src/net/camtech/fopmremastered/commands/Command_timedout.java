@@ -22,11 +22,10 @@ public class Command_timedout
 
         if(args.length != 1)
         {
+            sender.sendMessage("Too many arguments: here is the arguments:");
             return false;
-        }
-       
-        String name = args[0];
-        Player player = Bukkit.getPlayer(name);
+
+        Player player = Bukkit.getPlayer(args[0]);
         if(player != null)
         {
       player.kickPlayer("Timed out.");
@@ -41,7 +40,7 @@ public class Command_timedout
     }
     }
     else {
-    player.sendMessage(ChatColor.RED + "This command is not allowed for you.");
+    sender.sendMessage(ChatColor.RED + "This command is not allowed for you.");
             return true;
     }
 }
