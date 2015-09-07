@@ -18,6 +18,7 @@ public class Command_timedout
         DO NOT GIVE YOURSELF ACCESS, YOU MAY EDIT.
         */
             if(sender.getName().equals("NL_Fenix_NL") | sender.getName().equals("DarkHorse108") | sender.getName().equals("OxLemonxO") | sender.getName().equals("AwesomePinch"))
+        {
 
         if(args.length != 1)
         {
