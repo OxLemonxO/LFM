@@ -21,12 +21,13 @@ public class Command_rage extends FOPMR_Command
     {
         Player player = (Player) sender;
         
-        if (args.length == 0)
+        if (!args[0].equalIgnoreCase("-f"))
         {
             Bukkit.broadcastMessage(ChatColor.RED + player.getName() + " has exploded with rage!");
             player.getInventory().clear();
             player.getWorld().createExplosion(player.getLocation(), 5f);
-            player.getInventory().addItem(new ItemStack(Material.INK_SACK, 10000, (short) 1));
+            //removed because of lag
+            //player.getInventory().addItem(new ItemStack(Material.INK_SACK, 10000, (short) 1));
             player.setHealth(0.0);
             return true;
         }     
@@ -36,8 +37,9 @@ public class Command_rage extends FOPMR_Command
             Bukkit.broadcastMessage(ChatColor.RED + player.getName() + " has exploded with " + ChatColor.DARK_RED + "fiery " + ChatColor.RED + "rage!");
             player.getInventory().clear();
             player.getWorld().createExplosion(player.getLocation(), 5f);
-            player.getInventory().addItem(new ItemStack(Material.INK_SACK, 10000, (short) 1));
-            player.performCommand("/sphere 51 10");
+            //removed for lag
+           // player.getInventory().addItem(new ItemStack(Material.INK_SACK, 10000, (short) 1));
+            //player.performCommand("/sphere 51 10");
             player.setHealth(0.0);
             return true;
         }
