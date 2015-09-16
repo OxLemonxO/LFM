@@ -11,7 +11,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.Bukkit;
 import net.camtech.fopmremastered.FOPMR_CageHelper;
-
+//Credit to TotalFreedom
 
 public class Command_cage extends FOPMR_Command
 {

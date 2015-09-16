@@ -20,6 +20,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
+import java.util.function.Function;
+import org.bukkit.plugin.ServicePriority;
 
 public class FreedomOpModRemastered extends JavaPlugin
 {
@@ -74,7 +76,9 @@ public class FreedomOpModRemastered extends JavaPlugin
             }
         }
         FOPMR_RestManager.sendMessage(configs.getMainConfig().getConfig().getInt("rest.statusid"), "FreedomOpMod: Remastered has just been enabled.");
+        this.getServer().getServicesManager().register(Function.class, FOPMR_Rank.ADMIN_SERVICE, plugin, ServicePriority.Highest);
     }
+    
 
     @Override
     public void onDisable()

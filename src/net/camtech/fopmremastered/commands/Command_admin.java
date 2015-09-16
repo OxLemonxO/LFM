@@ -92,10 +92,10 @@ public class Command_admin
                             break;
                     }
                 }
-                arrays.stream().forEach((array) ->
+                for(ArrayList<String> array : arrays)
                 {
                     Collections.sort(array, String.CASE_INSENSITIVE_ORDER);
-                });
+                }
                 sender.sendMessage(ChatColor.GOLD + "  - Total Admins: " + adminlist.size());
                 sender.sendMessage(ChatColor.YELLOW + "    - Admins:");
                 sender.sendMessage("        - " + StringUtils.join(radmins, ", "));
@@ -171,11 +171,6 @@ public class Command_admin
             }
             if(args[0].equalsIgnoreCase("delete"))
             {
-                if (player.getName().equals("Agent_H_") | player.getName().equals("DarkHorse108") | player.getName().equals("OxLemonxO"))
-                {
-                    sender.sendMessage(ChatColor.DARK_RED + "You cannot delete this user!");
-                    return true;
-                }
                 if(FOPMR_Rank.isEqualOrHigher(FOPMR_Rank.getRank(player), FOPMR_Rank.getRank(sender)))
                 {
                     sender.sendMessage("You can only remove someone of a lower rank than yourself from admin.");

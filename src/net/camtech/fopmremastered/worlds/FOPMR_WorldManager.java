@@ -196,9 +196,20 @@ public class FOPMR_WorldManager
     public static boolean canAccess(String name, Player player)
     {
         World world = Bukkit.getWorld(name);
+        
         if(world == null)
         {
             return false;
+        }
+        if(("adminworld".equals(name)))
+        {
+            if(FOPMR_Rank.isAdmin(player)) {
+                return true;
+            }
+            else {
+                return false;
+            }
+            
         }
         if(!worlds.containsKey(world))
         {
@@ -217,6 +228,7 @@ public class FOPMR_WorldManager
 
     public static void sendToWorld(String name, Player player)
     {
+        
         World world = Bukkit.getWorld(name);
         if(world == null)
         {
@@ -240,13 +252,16 @@ public class FOPMR_WorldManager
 
     public static void wipeFlatlands()
     {
-        World flatlands = Bukkit.getWorld("flatlands");
+        final World flatlands = Bukkit.getWorld("flatlands");
+        
         for(Player player : flatlands.getPlayers())
         {
             player.setOp(false);
             player.setWhitelisted(false);
+            Bukkit.getServer().dispatchCommand(player, "world world");
         }
         Bukkit.getServer().setWhitelist(true);
+       
         CUtils_Methods.unloadWorld(flatlands);
         new BukkitRunnable()
         {
@@ -255,8 +270,10 @@ public class FOPMR_WorldManager
             {
                 CUtils_Methods.deleteWorld(flatlands.getWorldFolder());
                 Bukkit.getServer().setWhitelist(false);
+                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "opall");
             }
         }.runTaskLater(FreedomOpModRemastered.plugin, 20L * 5L);
         createNewWorld("flatlands", new FOPMR_FlatGenerator(), Rank.OP);
+        
     }
 }

@@ -1,7 +1,5 @@
 package net.camtech.fopmremastered.protectedareas;
 
-
-
 import java.util.ArrayList;
 import net.camtech.fopmremastered.FOPMR_Config;
 import net.camtech.fopmremastered.FOPMR_Rank;
@@ -12,12 +10,14 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
 
 public class FOPMR_ProtectedAreas
 {
+
     public static FOPMR_Config config = FreedomOpModRemastered.configs.getAreas();
     public static FileConfiguration areas = FreedomOpModRemastered.configs.getAreas().getConfig();
-    
+
     public static boolean canAccess(Player player, String area)
     {
         if(!isValidArea(area))
@@ -27,7 +27,62 @@ public class FOPMR_ProtectedAreas
         FOPMR_ProtectedArea parea = getFromName(area);
         return parea.canAccess(player);
     }
+
+    //MASSIVE CREDIT TO TOTALFREEDOM FOR THIS
+    public static ArrayList<FOPMR_ProtectedArea> areasIn(final Vector min, final Vector max, final String worldName)
+    {
+        ArrayList<FOPMR_ProtectedArea> tempareas = new ArrayList<>();
+        for(FOPMR_ProtectedArea area : getFromConfig())
+        {
+            if(worldName.equals(area.getLocation().getWorld().getName()))
+            {
+                if(cubeIntersectsSphere(min, max, area.getLocation().toVector(), area.getRange()))
+                {
+                    tempareas.add(area);
+                }
+            }
+        }
+        return tempareas;
+    }
     
+    //MASSIVE CREDIT TO TOTALFREEDOM FOR THIS
+    private static boolean cubeIntersectsSphere(Vector min, Vector max, Vector sphere, double radius)
+    {
+        double d = square(radius);
+
+        if (sphere.getX() < min.getX())
+        {
+            d -= square(sphere.getX() - min.getX());
+        }
+        else if (sphere.getX() > max.getX())
+        {
+            d -= square(sphere.getX() - max.getX());
+        }
+        if (sphere.getY() < min.getY())
+        {
+            d -= square(sphere.getY() - min.getY());
+        }
+        else if (sphere.getY() > max.getY())
+        {
+            d -= square(sphere.getY() - max.getY());
+        }
+        if (sphere.getZ() < min.getZ())
+        {
+            d -= square(sphere.getZ() - min.getZ());
+        }
+        else if (sphere.getZ() > max.getZ())
+        {
+            d -= square(sphere.getZ() - max.getZ());
+        }
+
+        return d > 0;
+    }
+
+    private static double square(double v)
+    {
+        return v * v;
+    }
+
     public static boolean addPlayer(Player sender, Player player, String area)
     {
         if(!isValidArea(area))
@@ -37,18 +92,18 @@ public class FOPMR_ProtectedAreas
         FOPMR_ProtectedArea parea = getFromName(area);
         return parea.addPlayer(sender, player);
     }
-    
+
     public static boolean addArea(Player player, String area, Rank rank, Location loc, int range)
     {
         if(isValidArea(area))
         {
             return false;
         }
-        FOPMR_ProtectedArea narea = new FOPMR_ProtectedArea(player.getName(), area, new ArrayList<>(), rank, loc, range);
+        FOPMR_ProtectedArea narea = new FOPMR_ProtectedArea(player.getName(), area, new ArrayList<String>(), rank, loc, range);
         addArea(narea);
         return true;
     }
-    
+
     public static boolean removePlayer(Player sender, Player player, String area)
     {
         if(!isValidArea(area))
@@ -58,7 +113,7 @@ public class FOPMR_ProtectedAreas
         FOPMR_ProtectedArea parea = getFromName(area);
         return parea.removePlayer(sender, player);
     }
-    
+
     public static boolean removeArea(Player player, String area)
     {
         if(!isValidArea(area))
@@ -74,22 +129,29 @@ public class FOPMR_ProtectedAreas
         }
         return false;
     }
-    
+
     public static ArrayList<FOPMR_ProtectedArea> getFromConfig()
     {
         ArrayList<FOPMR_ProtectedArea> temp = new ArrayList<>();
-        areas.getKeys(false).stream().forEach((area) ->
+        for(String area : areas.getKeys(false))
         {
             temp.add(getFromName(area));
-        });
+        }
         return temp;
     }
-    
+
     public static boolean isValidArea(String area)
     {
-        return areas.getKeys(false).stream().anyMatch((_item) -> (area.equalsIgnoreCase(_item)));
+        for(String configarea : areas.getKeys(false))
+        {
+            if(area.equalsIgnoreCase(configarea))
+            {
+                return true;
+            }
+        }
+        return false;
     }
-    
+
     public static FOPMR_ProtectedArea getFromName(String name)
     {
         if(!isValidArea(name))
@@ -114,7 +176,7 @@ public class FOPMR_ProtectedAreas
         }
         return null;
     }
-    
+
     public static void addArea(FOPMR_ProtectedArea area)
     {
         areas.set(area.getName() + ".owner", area.getOwner());
@@ -127,7 +189,7 @@ public class FOPMR_ProtectedAreas
         areas.set(area.getName() + ".range", area.getRange());
         config.saveConfig();
     }
-    
+
     public static void removeArea(FOPMR_ProtectedArea area)
     {
         if(!isValidArea(area.getName()))

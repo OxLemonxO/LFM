@@ -150,7 +150,7 @@ public class FOPMR_ToggleableEventsListener implements Listener
     @EventHandler
     public void onEntityDie(EntityDeathEvent event)
     {
-        Location loc = event.getEntity().getLocation();
+        final Location loc = event.getEntity().getLocation();
         if(!FreedomOpModRemastered.configs.getMainConfig().getConfig().getBoolean("toggles.drops"))
         {
             event.setDroppedExp(0);
@@ -159,10 +159,13 @@ public class FOPMR_ToggleableEventsListener implements Listener
                 @Override
                 public void run()
                 {
-                    loc.getWorld().getEntities().stream().filter((entity) -> (!(entity instanceof LivingEntity) && entity.getLocation().distance(loc) < 10)).forEach((entity) ->
+                    for(Entity entity : loc.getWorld().getEntities())
                     {
-                        entity.remove();
-                    });
+                        if(!(entity instanceof LivingEntity) && entity.getLocation().distance(loc) < 10)
+                        {
+                            entity.remove();
+                        }
+                    }
                 }
             }.runTaskLater(FreedomOpModRemastered.plugin, 10L);
         }

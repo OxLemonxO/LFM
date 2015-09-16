@@ -1,10 +1,10 @@
 package net.camtech.fopmremastered.commands;
  
-import static me.StevenLawson.BukkitTelnet.BukkitTelnet.plugin;
 import net.camtech.fopmremastered.FOPMR_Bans;
 import net.camtech.fopmremastered.FOPMR_Rank.Rank;
 import net.camtech.fopmremastered.FOPMR_Commons;
 import net.camtech.fopmremastered.FOPMR_Rank;
+import static net.camtech.fopmremastered.FreedomOpModRemastered.plugin;
 import net.camtech.fopmremastered.commands.FOPMR_Command;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;

@@ -2,6 +2,7 @@ package net.camtech.fopmremastered.commands;
 
 import net.camtech.fopmremastered.FOPMR_Rank;
 import net.camtech.fopmremastered.FOPMR_Rank.Rank;
+import net.camtech.fopmremastered.protectedareas.FOPMR_ProtectedArea;
 import net.camtech.fopmremastered.protectedareas.FOPMR_ProtectedAreas;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -29,7 +30,7 @@ public class Command_protect
             if(args[0].equalsIgnoreCase("list"))
             {
                 sender.sendMessage(ChatColor.GOLD + "List of currently active protected areas: ");
-                FOPMR_ProtectedAreas.getFromConfig().stream().forEach((area) ->
+                for(FOPMR_ProtectedArea area : FOPMR_ProtectedAreas.getFromConfig())
                 {
                     ChatColor colour = ChatColor.RED;
                     if(area.canAccess(player))
@@ -37,7 +38,7 @@ public class Command_protect
                         colour = ChatColor.GREEN;
                     }
                     sender.sendMessage(colour + " - " + area.getName());
-                });
+                }
                 return true;
             }
         }

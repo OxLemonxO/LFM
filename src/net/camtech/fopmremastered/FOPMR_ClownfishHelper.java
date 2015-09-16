@@ -8,7 +8,7 @@ package net.camtech.fopmremastered;
 import org.bukkit.Material;
 import org.bukkit.block.*;
 import org.bukkit.material.MaterialData;
-
+//Credit to TotalFreedom
 @SuppressWarnings("deprecation")
 public class FOPMR_ClownfishHelper {
  

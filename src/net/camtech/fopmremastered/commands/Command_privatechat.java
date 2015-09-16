@@ -2,6 +2,7 @@ package net.camtech.fopmremastered.commands;
 
 import net.camtech.fopmremastered.FOPMR_Rank;
 import net.camtech.fopmremastered.FreedomOpModRemastered;
+import net.camtech.fopmremastered.chats.FOPMR_PrivateChat;
 import net.camtech.fopmremastered.chats.FOPMR_PrivateChats;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -28,7 +29,7 @@ public class Command_privatechat
             if(args[0].equalsIgnoreCase("list"))
             {
                 sender.sendMessage(ChatColor.GOLD + "List of currently active private chats: ");
-                FOPMR_PrivateChats.getFromConfig().stream().forEach((chat) ->
+                for(FOPMR_PrivateChat chat : FOPMR_PrivateChats.getFromConfig())
                 {
                     ChatColor colour = ChatColor.RED;
                     if(FOPMR_PrivateChats.canAccess(player, chat.getName()))
@@ -36,7 +37,7 @@ public class Command_privatechat
                         colour = ChatColor.GREEN;
                     }
                     sender.sendMessage(colour + " - " + chat.getName());
-                });
+                }
                 return true;
             }
             if(args[0].equalsIgnoreCase("off"))

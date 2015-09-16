@@ -1,7 +1,5 @@
 package net.camtech.fopmremastered.chats;
 
-
-
 import java.util.ArrayList;
 import net.camtech.fopmremastered.FOPMR_Config;
 import net.camtech.fopmremastered.FOPMR_Rank;
@@ -86,10 +84,10 @@ public class FOPMR_PrivateChats
     public static ArrayList<FOPMR_PrivateChat> getFromConfig()
     {
         ArrayList<FOPMR_PrivateChat> temp = new ArrayList<>();
-        chats.getKeys(false).stream().forEach((chat) ->
+        for(String chat : chats.getKeys(false))
         {
             temp.add(getFromName(chat));
-        });
+        }
         return temp;
     }
     
@@ -109,7 +107,14 @@ public class FOPMR_PrivateChats
     
     public static boolean isValidChat(String chat)
     {
-        return chats.getKeys(false).stream().anyMatch((_item) -> (chat.equalsIgnoreCase(_item)));
+        for(String configchat : chats.getKeys(false))
+        {
+            if(chat.equalsIgnoreCase(configchat))
+            {
+                return true;
+            }
+        }
+        return false;
     }
     
     public static FOPMR_PrivateChat getFromName(String name)

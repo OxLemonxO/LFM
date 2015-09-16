@@ -68,7 +68,7 @@ public class FOPMR_ProtectedArea
         {
             return true;
         }
-        return FOPMR_Rank.isEqualOrHigher(FOPMR_Rank.getRank(player), rank);
+        return FOPMR_Rank.getRank(player).level > rank.level;
     }
     
     public boolean addPlayer(Player sender, Player player)

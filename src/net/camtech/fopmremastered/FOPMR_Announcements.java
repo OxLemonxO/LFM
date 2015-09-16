@@ -10,13 +10,13 @@ public class FOPMR_Announcements
     public static void setup()
     {
         System.out.println("Announcements Loaded.");
-        FreedomOpModRemastered.configs.getAnnouncements().getConfig().getKeys(false).stream().forEach((announce) ->
+        for(String announce : FreedomOpModRemastered.configs.getAnnouncements().getConfig().getKeys(false))
         {
             announce(FreedomOpModRemastered.configs.getAnnouncements().getConfig().getString(announce + ".message"), FreedomOpModRemastered.configs.getAnnouncements().getConfig().getInt(announce + ".time"));
-        });
+        }
     }
 
-    private static void announce(String message, long delay)
+    private static void announce(final String message, final long delay)
     {
         new BukkitRunnable()
         {
@@ -26,6 +26,6 @@ public class FOPMR_Announcements
                 Bukkit.broadcastMessage(CUtils_Methods.colour(message));
                 announce(message, delay);
             }
-        }.runTaskLater(FreedomOpModRemastered.plugin, delay * 20);
+        }.runTaskLaterAsynchronously(FreedomOpModRemastered.plugin, delay * 20);
     }
 }

@@ -29,10 +29,13 @@ public class Command_builder
             if(args[0].equalsIgnoreCase("list"))
             {
                 sender.sendMessage(ChatColor.GREEN + "The following users are Master Builders.");
-                FreedomOpModRemastered.configs.getAdmins().getConfig().getKeys(false).stream().filter((uuid) -> (FreedomOpModRemastered.configs.getAdmins().getConfig().getBoolean(uuid + ".builder"))).forEach((uuid) ->
+                for(String uuid : FreedomOpModRemastered.configs.getAdmins().getConfig().getKeys(false))
                 {
-                    sender.sendMessage(ChatColor.GREEN + " - " + FreedomOpModRemastered.configs.getAdmins().getConfig().getString(uuid + ".lastName"));
-                });
+                    if(FreedomOpModRemastered.configs.getAdmins().getConfig().getBoolean(uuid + ".builder"))
+                    {
+                        sender.sendMessage(ChatColor.GREEN + " - " + FreedomOpModRemastered.configs.getAdmins().getConfig().getString(uuid + ".lastName"));
+                    }
+                }
                 return true;
             }
         }

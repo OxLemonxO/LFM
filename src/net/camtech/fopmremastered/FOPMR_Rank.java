@@ -1,5 +1,6 @@
 package net.camtech.fopmremastered;
 
+import java.util.function.Function;
 import net.camtech.camutils.CUtils_Methods;
 import static net.camtech.fopmremastered.FreedomOpModRemastered.configs;
 import org.bukkit.Bukkit;
@@ -11,6 +12,14 @@ import org.bukkit.entity.Player;
 
 public class FOPMR_Rank
 {
+  public static final Function<Player, Boolean> ADMIN_SERVICE = new Function<Player, Boolean>()
+    {
+        @Override
+        public Boolean apply(Player f)
+        {
+            return isAdmin(f);
+        }
+    };
 
     public static Rank getRank(CommandSender player)
     {

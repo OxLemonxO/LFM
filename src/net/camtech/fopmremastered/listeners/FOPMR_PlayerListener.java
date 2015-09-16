@@ -6,8 +6,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.regex.Pattern;
-import me.StevenLawson.BukkitTelnet.BukkitTelnet;
-import me.StevenLawson.BukkitTelnet.session.ClientSession;
 import net.camtech.camutils.CUtils_Methods;
 import net.camtech.camutils.CUtils_Player;
 import net.camtech.fopmremastered.FOPMR_Bans;
@@ -367,7 +365,7 @@ public class FOPMR_PlayerListener implements Listener {
             }
         }
         if (FOPMR_Rank.isImposter(player)) {
-            player.sendMessage("You cannot move whilst impostered.");
+            player.sendMessage("You cannot move whilst you are an impostor.");
             event.setCancelled(true);
             player.teleport(player);
         }
@@ -447,11 +445,12 @@ public class FOPMR_PlayerListener implements Listener {
             event.setCancelled(true);
             event.getPlayer().shootArrow();
         }
+        //Credit to TotalFreedom
         if (item.getType() == Material.RAW_FISH) {
             final int RADIUS_HIT = 5;
             final int STRENGTH = 4;
             if (FOPMR_ClownfishHelper.getData_MaterialData(event.getItem().getData()) == 2) {
-                if (FOPMR_Rank.isSystem(player)) {
+                if (FOPMR_Rank.isSuper(player)) {
                     boolean didHit = false;
 
                     final Location playerLoc = player.getLocation();

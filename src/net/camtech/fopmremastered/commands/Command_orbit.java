@@ -14,6 +14,7 @@ import org.bukkit.Bukkit;
 
 public class Command_orbit extends FOPMR_Command
 {
+    //Credit to TotalFreedom
     public Command_orbit()
     {
     super("orbit", "/orbit <target> [<<power> | stop>]", "POW!!! Right in the kisser! One of these days Alice, straight to the Moon!", ADMIN);

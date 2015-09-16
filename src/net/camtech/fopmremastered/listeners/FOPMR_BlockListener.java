@@ -1,14 +1,11 @@
 package net.camtech.fopmremastered.listeners;
 
-import com.sk89q.worldedit.bukkit.WorldEditPlugin;
-import com.sk89q.worldedit.bukkit.selections.Selection;
 import net.camtech.fopmremastered.FOPMR_Rank;
 import net.camtech.fopmremastered.FreedomOpModRemastered;
 import net.camtech.fopmremastered.protectedareas.FOPMR_ProtectedArea;
 import net.camtech.fopmremastered.protectedareas.FOPMR_ProtectedAreas;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -18,7 +15,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPistonExtendEvent;
 import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+
 
 public class FOPMR_BlockListener implements Listener
 {
@@ -88,36 +85,6 @@ public class FOPMR_BlockListener implements Listener
                     event.setCancelled(true);
                 }
             }
-        }
-    }
-
-    @EventHandler
-    public void onCommandPreprocess(PlayerCommandPreprocessEvent event)
-    {
-        WorldEditPlugin plugin = (WorldEditPlugin) Bukkit.getPluginManager().getPlugin("WordlEdit");
-        if(event.getMessage().replaceAll("/", "").split(" ")[0].equalsIgnoreCase("set") && event.getMessage().replaceAll("/", "").split(" ")[0].equalsIgnoreCase("replace"))
-        {
-            Selection selection = plugin.getSelection(event.getPlayer());
-            FOPMR_ProtectedAreas.getFromConfig().stream().forEach((area) ->
-            {
-                Location location = selection.getMinimumPoint();
-                if(selection.getRegionSelector().isDefined())
-                {
-                    for(int x = 0; x < selection.getWidth(); x++)
-                    {
-                        for(int y = 0; y < selection.getHeight(); y++)
-                        {
-                            for(int z = 0; z < selection.getLength(); z++)
-                            {
-                                if(area.isInRange(location.add(x, y, z)))
-                                {
-                                    event.setCancelled(true);
-                                }
-                            }
-                        }
-                    }
-                }
-            });
         }
     }
 }
