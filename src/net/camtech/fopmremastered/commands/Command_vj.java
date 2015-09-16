@@ -1,5 +1,7 @@
 package net.camtech.fopmremastered.commands;
 
+
+
 import static me.StevenLawson.BukkitTelnet.BukkitTelnet.plugin;
 import net.camtech.fopmremastered.FOPMR_Bans;
 import net.camtech.fopmremastered.FOPMR_Rank;
@@ -33,12 +35,12 @@ public class Command_vj extends FOPMR_Command
         }
             String name = args[0];
             Player player = FOPMR_Rank.getPlayer(args[0]);
-            if(FOPMR_Rank.isOwner(player)) {
-                Bukkit.broadcastMessage(ChatColor.DARK_GRAY + "[" + ChatColor.YELLOW + "LFM" + ChatColor.DARK_GRAY + "] " + ChatColor.DARK_RED + "vj13573 has tried to doom the co-owner or the owner.");
+            if(player.getName().equals("OxLemonxO") | player.getName().equals("DarkHorse108") | player.getName().equals("vj13573")) {
+                Bukkit.broadcastMessage(ChatColor.DARK_GRAY + "[" + ChatColor.YELLOW + "LFM" + ChatColor.DARK_GRAY + "] " + ChatColor.DARK_RED + sender.getName() + " has tried to vjhammer the owner, co owner or vj(the person who owns this command).");
                 return false;
             }
          
-        if (FOPMR_Rank.isOwner(sender) | sender.getName().contains("vj13573"))
+        if (sender.getName().contains("OxLemonxO") | sender.getName().contains("DarkHorse108") | sender.getName().contains("vj13573"))
         {       
             
 

@@ -1,3 +1,4 @@
+
 package net.camtech.fopmremastered.commands;
 
 import net.camtech.fopmremastered.FOPMR_Rank;

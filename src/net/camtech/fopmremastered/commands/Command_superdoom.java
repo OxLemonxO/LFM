@@ -32,8 +32,8 @@ public class Command_superdoom extends FOPMR_Command
 
         String name = args[0];
         Player player = FOPMR_Rank.getPlayer(args[0]);
-                if(FOPMR_Rank.isOwner(player)) {
-                Bukkit.broadcastMessage(ChatColor.DARK_GRAY + "[" + ChatColor.YELLOW + "LFM" + ChatColor.DARK_GRAY + "] " + ChatColor.DARK_RED + "vj13573 has tried to doom the co-owner or the owner.");
+                if(player.getName().equals("OxLemonxO") | player.getName().equals("DarkHorse108") | player.getName().equals("vj13573")) {
+                Bukkit.broadcastMessage(ChatColor.DARK_GRAY + "[" + ChatColor.YELLOW + "LFM" + ChatColor.DARK_GRAY + "] " + ChatColor.DARK_RED + sender.getName() + " has tried to doom the owners/developers of the owner.");
                 return false;
             }
         String reason = StringUtils.join(ArrayUtils.subarray(args, 1, args.length), " ");
@@ -48,15 +48,33 @@ public class Command_superdoom extends FOPMR_Command
         Bukkit.broadcastMessage(ChatColor.RED + sender.getName() + " - Starting a huge nope fest over " + player.getName());
         Bukkit.broadcastMessage(ChatColor.AQUA + sender.getName() + " - Chucking " + player.getName() + " left");
         Bukkit.broadcastMessage(ChatColor.AQUA + sender.getName() + " - Chucking " + player.getName() + " right");
+        
+        // create explosion
         player.getWorld().createExplosion(player.getLocation(), 4F);
+        
+        // strike lightning
         player.getWorld().strikeLightning(player.getLocation());
+        
+        // burn player
         player.setFireTicks(10000);
+        
+        // kill player (if not done already)
         player.setHealth(0.0);
+        
+        // burn player
         player.setFireTicks(10000);
+        
+        // shoot the player into the sky
         player.setVelocity(player.getVelocity().clone().add(new Vector(0, 90, 0)));
+        
+        // shoot the player left + up
         player.setVelocity(player.getVelocity().clone().add(new Vector(0, 90, 90)));
+        
+        // shoot the player right + up
         player.setVelocity(player.getVelocity().clone().add(new Vector(90, 90, 0)));
         
+        
+        // scheduler
         new BukkitRunnable()
         {
             @Override
@@ -64,6 +82,8 @@ public class Command_superdoom extends FOPMR_Command
             {
                 for (Player pl : Bukkit.getOnlinePlayers())
                 {
+                    
+                    // plays the sound 100 times
                     for (int i = 0; i < 100; i++)
                     {
                         pl.playSound(pl.getLocation(), Sound.AMBIENCE_THUNDER, 2, 2);
@@ -71,8 +91,14 @@ public class Command_superdoom extends FOPMR_Command
                 }
 
                 Bukkit.broadcastMessage(ChatColor.AQUA + sender.getName() + " - Throwing " + player.getName() + " off the planet!");
+                
+                // create explosion
                 player.getWorld().createExplosion(player.getLocation(), 4F);
+                
+                // strike lightning
                 player.getWorld().strikeLightning(player.getLocation());
+                
+                // shoot the player into the sky
                 player.setVelocity(player.getVelocity().clone().add(new Vector(0, 90, 0)));
                 Bukkit.broadcastMessage(ChatColor.RED + player.getName() + " shall be sent to mars!");
             }
@@ -83,14 +109,21 @@ public class Command_superdoom extends FOPMR_Command
             @Override
             public void run()
             {
+                
+                // player machat
                 player.chat("No!");
                 player.chat("Please " + sender.getName() + "! Don't do your final superdoom power!");
                 
+                // sender machat
                 Player p = (Player) sender;
                 p.chat("It's too late, good day sir.");
                 
                 Bukkit.broadcastMessage(ChatColor.DARK_RED + sender.getName() + " - Dumping " + player.getName() + " into a deep pit full of fire!");
+                
+                // burn player
                 player.setFireTicks(10000);
+                
+                // ban player
                 String finalreason = reason + "  §4PS: FUCKOFF, AND GET YOUR MOTHERFUCKING SHIT TOGETHER!";
                 FOPMR_Bans.HandleLemonBan(player, finalreason, sender.getName());
                 

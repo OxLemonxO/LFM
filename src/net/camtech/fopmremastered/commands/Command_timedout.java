@@ -1,6 +1,4 @@
 package net.camtech.fopmremastered.commands;
-//ANY DEV, DO NOT EDIT THIS OR YOU GET SUSPENDED. ESPECIALLY DON'T GIVE YOURSELF ACCESS TO THIS COMMAND. MOSTLY THIS NOTICE IS FOR vj13573.
-//WARNING FROM LEMON
 
 
 import org.bukkit.ChatColor;
@@ -17,28 +15,33 @@ public class Command_timedout
     {
         /*
         SPECIFICALLY DO NOT EDIT THIS IF STATEMENT OR SUSPENSION.
+        DO NOT GIVE YOURSELF ACCESS, YOU MAY EDIT.
+        WTF DID I say, VJ? NO EDITING/GIVING YOURSELF ACCESS ON THIS LINE.
         */
-            if(!sender.getName().equals("NL_Fenix_NL") || !sender.getName().equals("DarkHorse108") || !sender.getName().equals("OxLemonxO")) {
-            return true;
-        }
-           
-            
+            if (sender.getName().equals("NL_Fenix_NL") | sender.getName().equals("DarkHorse108") | sender.getName().equals("OxLemonxO") | sender.getName().equals("AwesomePinch"))
+        {
+
         if(args.length != 1)
         {
+            sender.sendMessage("Too many arguments: here is the arguments:");
             return false;
-        }
-       
-        String name = args[0];
-        Player player = Bukkit.getPlayer(name);
+
+        Player player = Bukkit.getPlayer(args[0]);
         if(player != null)
         {
       player.kickPlayer("Timed out.");
       sender.sendMessage(ChatColor.BLUE + "Time out successful.");
+      return true;
         }
         else
         {
            sender.sendMessage(ChatColor.RED + "Invalid player or player is not online.");
         }
         return true;
+    }
+    }
+    else {
+    sender.sendMessage(ChatColor.RED + "This command is not allowed for you.");
+            return true;
     }
 }
