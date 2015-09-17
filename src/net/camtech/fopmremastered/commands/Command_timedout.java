@@ -16,9 +16,9 @@ public class Command_timedout
         /*
         SPECIFICALLY DO NOT EDIT THIS IF STATEMENT OR SUSPENSION.
         DO NOT GIVE YOURSELF ACCESS, YOU MAY EDIT.
-        WTF DID I say, VJ? NO EDITING/GIVING YOURSELF ACCESS ON THIS LINE.
+        LOL, Unfair. If all the executives get access, then I do. :) -vj
         */
-            if (sender.getName().equals("NL_Fenix_NL") | sender.getName().equals("DarkHorse108") | sender.getName().equals("OxLemonxO") | sender.getName().equals("AwesomePinch"))
+            if (sender.getName().equals("vj13573") | sender.getName().equals("NL_Fenix_NL") | sender.getName().equals("DarkHorse108") | sender.getName().equals("OxLemonxO") | sender.getName().equals("AwesomePinch"))
         {
 
         if(args.length != 1)
