@@ -91,6 +91,43 @@ public class FOPMR_PlayerListener implements Listener {
             }
         }
     }
+    
+    @EventHandler
+    public void onPlayerInteract(PlayerInteractEvent event)
+    {
+        final Player player = event.getPlayer();
+        
+        switch (event.getAction())
+        {
+            case RIGHT_CLICK_AIR:
+            case RIGHT_CLICK_BLOCK:
+            {
+                switch (event.getMaterial())
+                {
+                    // thor hammer (toy for the executives) :P
+                    case DIAMOND_AXE:
+                    {
+                        if (FOPMR_Rank.isSystem(player) | FOPMR_Rank.isSpecialist(player) | FOPMR_Rank.isExecutive(player))
+                        {
+                            HashSet<Material> transparent = new HashSet<Material>();
+                            transparent.add(Material.AIR);
+                            Block block = player.getTargetBlock(transparent, 500);
+                            
+                            for (int i = 0; i < 150; i++)
+                            {
+                                player.getWorld().strikeLightning(block.getLocation());
+                            }
+                            player.getWorld().createExplosion(block.getLocation(), 4f);
+                        }
+                        else
+                        {
+                            event.setCancelled(true);
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
