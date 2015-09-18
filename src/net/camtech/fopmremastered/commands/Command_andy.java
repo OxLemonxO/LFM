@@ -116,7 +116,7 @@ public class Command_andy extends FOPMR_Command
                 public void run()
                 {
                     String finalreason = reason + "  §cPS: You were Andy'd to death!";
-                    FOPMR_Bans.HandleLemonBan(player, finalreason, sender.getName());
+                    FOPMR_Bans.addBan(player, finalreason, sender.getName());
                 }
             }.runTaskLater(plugin, 4L * 20L);
             
