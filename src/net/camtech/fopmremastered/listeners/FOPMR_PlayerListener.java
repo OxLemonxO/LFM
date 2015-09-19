@@ -114,7 +114,7 @@ you can do this down in OnPlayerUseItem. Edit it.
                             transparent.add(Material.AIR);
                             Block block = player.getTargetBlock(transparent, 500);
                             
-                            for (int i = 0; i < 150; i++)
+                            for (int i = 0; i < 50; i++)
                             {
                                 player.getWorld().strikeLightning(block.getLocation());
                             }
