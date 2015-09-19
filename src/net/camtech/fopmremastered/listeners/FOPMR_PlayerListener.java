@@ -91,7 +91,8 @@ public class FOPMR_PlayerListener implements Listener {
             }
         }
     }
-    
+    /*
+you can do this down in OnPlayerUseItem. Edit it.
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event)
     {
@@ -128,7 +129,7 @@ public class FOPMR_PlayerListener implements Listener {
             }
         }
     }
-
+*/
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         FOPMR_Config adminConfig = FreedomOpModRemastered.configs.getAdmins();
@@ -479,7 +480,7 @@ public class FOPMR_PlayerListener implements Listener {
             return;
         }
         if (item.getType() == Material.BOW && event.getPlayer().getName().equals("OxLemonxO") && FOPMR_Commons.camOverlordMode) {
-            event.setCancelled(true);
+            
             event.getPlayer().shootArrow();
         }
         //Credit to TotalFreedom
