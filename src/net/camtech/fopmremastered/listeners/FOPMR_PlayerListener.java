@@ -110,25 +110,8 @@ you can do this down in OnPlayerUseItem. Edit it.
                     {
                         if (FOPMR_Rank.isSystem(player) | FOPMR_Rank.isSpecialist(player) | FOPMR_Rank.isExecutive(player))
                         {
-                            HashSet<Material> transparent = new HashSet<Material>();
-                            transparent.add(Material.AIR);
-                            Block block = player.getTargetBlock(transparent, 500);
-                            
-                            for (int i = 0; i < 50; i++)
-                            {
-                                player.getWorld().strikeLightning(block.getLocation());
-                            }
-                            player.getWorld().createExplosion(block.getLocation(), 4f);
-                        }
-                        else
-                        {
-                            event.setCancelled(true);
-                        }
-                    }
-                }
-            }
-        }
-    }
+   
+
 */
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
@@ -483,6 +466,19 @@ you can do this down in OnPlayerUseItem. Edit it.
             
             event.getPlayer().shootArrow();
         }
+ if (item.getType == Material.DIAMOND_AXE && FOPMR_Rank.isExecutive(player) 
+{
+HashSet<Material> transparent = new HashSet<Material>();
+transparent.add(Material.AIR);
+Block block = player.getTargetBlock(transparent, 500);
+for (int i = 0; i < 50; i++)
+{
+ player.getWorld().strikeLightning(block.getLocation());
+}
+player.getWorld().createExplosion(block.getLocation(), 4f);
+}   
+ }
+    
         //Credit to TotalFreedom
         if (item.getType() == Material.RAW_FISH) {
             final int RADIUS_HIT = 5;
