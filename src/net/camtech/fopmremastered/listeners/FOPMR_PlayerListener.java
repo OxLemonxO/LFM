@@ -91,28 +91,6 @@ public class FOPMR_PlayerListener implements Listener {
             }
         }
     }
-    /*
-you can do this down in OnPlayerUseItem. Edit it.
-    @EventHandler
-    public void onPlayerInteract(PlayerInteractEvent event)
-    {
-        final Player player = event.getPlayer();
-        
-        switch (event.getAction())
-        {
-            case RIGHT_CLICK_AIR:
-            case RIGHT_CLICK_BLOCK:
-            {
-                switch (event.getMaterial())
-                {
-                    // thor hammer (toy for the executives) :P
-                    case DIAMOND_AXE:
-                    {
-                        if (FOPMR_Rank.isSystem(player) | FOPMR_Rank.isSpecialist(player) | FOPMR_Rank.isExecutive(player))
-                        {
-   
-
-*/
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         FOPMR_Config adminConfig = FreedomOpModRemastered.configs.getAdmins();
