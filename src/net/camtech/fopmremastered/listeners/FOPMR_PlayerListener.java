@@ -6,6 +6,10 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.regex.Pattern;
+import net.camtech.fopmremastered.FOPMR_PlayerData;
+import java.util.HashSet;
+import org.bukkit.block.Block;
+import net.camtech.fopmremastered.FOPMR_CageHelper;
 import net.camtech.camutils.CUtils_Methods;
 import net.camtech.camutils.CUtils_Player;
 import net.camtech.fopmremastered.FOPMR_Bans;
@@ -74,7 +78,7 @@ public class FOPMR_PlayerListener implements Listener {
 
     private CommandMap cmap = getCommandMap();
     private Object world;
-
+ 
     public FOPMR_PlayerListener() {
         Bukkit.getPluginManager().registerEvents(this, FreedomOpModRemastered.plugin);
     }
@@ -180,7 +184,9 @@ public class FOPMR_PlayerListener implements Listener {
 
     @EventHandler
     public void onPlayerLeave(PlayerQuitEvent event) {
+        
         Player player = event.getPlayer();
+        final FOPMR_PlayerData playerdata = FOPMR_PlayerData.getPlayerData(player);
         if (FOPMR_Commons.imposters.contains(player.getName())) {
             FOPMR_Commons.imposters.remove(player.getName());
         }
@@ -190,6 +196,11 @@ public class FOPMR_PlayerListener implements Listener {
             admins.set(player.getUniqueId().toString() + ".imposter", false);
         }
         FreedomOpModRemastered.configs.getAdmins().saveConfig();
+         if (playerdata.isCaged())
+        {
+            playerdata.regenerateHistory();
+            playerdata.clearHistory();
+        }
     }
 
     @EventHandler
@@ -377,6 +388,39 @@ public class FOPMR_PlayerListener implements Listener {
             player.teleport(Bukkit.getWorld("world").getSpawnLocation());
             event.setCancelled(true);
         }
+       final FOPMR_PlayerData playerdata = FOPMR_PlayerData.getPlayerData(player);
+       if (playerdata.isCaged())
+        {
+            Location targetPos = player.getLocation().add(0, 1, 0);
+
+            boolean outOfCage;
+            if (!targetPos.getWorld().equals(playerdata.getCagePos().getWorld()))
+            {
+                outOfCage = true;
+            }
+            else
+            {
+                outOfCage = targetPos.distanceSquared(playerdata.getCagePos()) > (2.5 * 2.5);
+            }
+
+            if (outOfCage)
+            {
+                playerdata.setCaged(true, targetPos, playerdata.getCageMaterial(FOPMR_PlayerData.CageLayer.OUTER), playerdata.getCageMaterial(FOPMR_PlayerData.CageLayer.INNER));
+                playerdata.regenerateHistory();
+                playerdata.clearHistory();
+                FOPMR_CageHelper.buildHistory(targetPos, 2, playerdata);
+                FOPMR_CageHelper.generateHollowCube(targetPos, 2, playerdata.getCageMaterial(FOPMR_PlayerData.CageLayer.OUTER));
+                FOPMR_CageHelper.generateCube(targetPos, 1, playerdata.getCageMaterial(FOPMR_PlayerData.CageLayer.INNER));
+            }
+        }
+           if (playerdata.isOrbiting())
+        {
+            if (player.getVelocity().length() < playerdata.orbitStrength() * (2.0 / 3.0))
+            {
+                player.setVelocity(new Vector(0, playerdata.orbitStrength(), 0));
+            }
+        }
+
     }
 
     @EventHandler
@@ -444,7 +488,7 @@ public class FOPMR_PlayerListener implements Listener {
             
             event.getPlayer().shootArrow();
         }
- if (item.getType == Material.DIAMOND_AXE && FOPMR_Rank.isExecutive(player) 
+ if (item.getType() == Material.DIAMOND_AXE && FOPMR_Rank.isExecutive(player))
 {
 HashSet<Material> transparent = new HashSet<Material>();
 transparent.add(Material.AIR);
@@ -455,7 +499,7 @@ for (int i = 0; i < 50; i++)
 }
 player.getWorld().createExplosion(block.getLocation(), 4f);
 }   
- }
+ 
     
         //Credit to TotalFreedom
         if (item.getType() == Material.RAW_FISH) {
