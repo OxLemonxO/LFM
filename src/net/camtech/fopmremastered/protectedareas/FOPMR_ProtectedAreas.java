@@ -1,22 +1,25 @@
 package net.camtech.fopmremastered.protectedareas;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
+import com.google.gson.reflect.TypeToken;
+import java.lang.reflect.Type;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.ArrayList;
-import net.camtech.fopmremastered.FOPMR_Config;
+import net.camtech.fopmremastered.FOPMR_DatabaseInterface;
 import net.camtech.fopmremastered.FOPMR_Rank;
 import net.camtech.fopmremastered.FOPMR_Rank.Rank;
 import net.camtech.fopmremastered.FreedomOpModRemastered;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 public class FOPMR_ProtectedAreas
 {
-
-    public static FOPMR_Config config = FreedomOpModRemastered.configs.getAreas();
-    public static FileConfiguration areas = FreedomOpModRemastered.configs.getAreas().getConfig();
 
     public static boolean canAccess(Player player, String area)
     {
@@ -32,7 +35,7 @@ public class FOPMR_ProtectedAreas
     public static ArrayList<FOPMR_ProtectedArea> areasIn(final Vector min, final Vector max, final String worldName)
     {
         ArrayList<FOPMR_ProtectedArea> tempareas = new ArrayList<>();
-        for(FOPMR_ProtectedArea area : getFromConfig())
+        for(FOPMR_ProtectedArea area : getFromDatabase())
         {
             if(worldName.equals(area.getLocation().getWorld().getName()))
             {
@@ -44,33 +47,33 @@ public class FOPMR_ProtectedAreas
         }
         return tempareas;
     }
-    
+
     //MASSIVE CREDIT TO TOTALFREEDOM FOR THIS
     private static boolean cubeIntersectsSphere(Vector min, Vector max, Vector sphere, double radius)
     {
         double d = square(radius);
 
-        if (sphere.getX() < min.getX())
+        if(sphere.getX() < min.getX())
         {
             d -= square(sphere.getX() - min.getX());
         }
-        else if (sphere.getX() > max.getX())
+        else if(sphere.getX() > max.getX())
         {
             d -= square(sphere.getX() - max.getX());
         }
-        if (sphere.getY() < min.getY())
+        if(sphere.getY() < min.getY())
         {
             d -= square(sphere.getY() - min.getY());
         }
-        else if (sphere.getY() > max.getY())
+        else if(sphere.getY() > max.getY())
         {
             d -= square(sphere.getY() - max.getY());
         }
-        if (sphere.getZ() < min.getZ())
+        if(sphere.getZ() < min.getZ())
         {
             d -= square(sphere.getZ() - min.getZ());
         }
-        else if (sphere.getZ() > max.getZ())
+        else if(sphere.getZ() > max.getZ())
         {
             d -= square(sphere.getZ() - max.getZ());
         }
@@ -130,26 +133,37 @@ public class FOPMR_ProtectedAreas
         return false;
     }
 
-    public static ArrayList<FOPMR_ProtectedArea> getFromConfig()
+    public static ArrayList<FOPMR_ProtectedArea> getFromDatabase()
     {
         ArrayList<FOPMR_ProtectedArea> temp = new ArrayList<>();
-        for(String area : areas.getKeys(false))
+        try
         {
-            temp.add(getFromName(area));
+            for(Object object : FOPMR_DatabaseInterface.getAsArrayList("NAME", null, "NAME", "AREAS"))
+            {
+                if(object instanceof String)
+                {
+                    temp.add(getFromName((String) object));
+                }
+            }
+        }
+        catch(Exception ex)
+        {
+            FreedomOpModRemastered.plugin.handleException(ex);
         }
         return temp;
     }
 
     public static boolean isValidArea(String area)
     {
-        for(String configarea : areas.getKeys(false))
+        try
         {
-            if(area.equalsIgnoreCase(configarea))
-            {
-                return true;
-            }
+            return (FOPMR_DatabaseInterface.getFromTable("NAME", area, "NAME", "AREAS") != null);
         }
-        return false;
+        catch(Exception ex)
+        {
+            FreedomOpModRemastered.plugin.handleException(ex);
+            return false;
+        }
     }
 
     public static FOPMR_ProtectedArea getFromName(String name)
@@ -158,36 +172,52 @@ public class FOPMR_ProtectedAreas
         {
             return null;
         }
-        for(String check : areas.getKeys(false))
+        try
         {
-            if(check.equalsIgnoreCase(name))
-            {
-                String owner = areas.getString(name + ".owner");
-                Rank rank = FOPMR_Rank.getFromName(areas.getString(name + ".rank"));
-                ArrayList<String> allowed = new ArrayList<>(areas.getStringList(name + ".allowed"));
-                int x = areas.getInt(name + ".x");
-                int y = areas.getInt(name + ".y");
-                int z = areas.getInt(name + ".z");
-                World world = Bukkit.getWorld(areas.getString(name + ".world"));
-                Location loc = new Location(world, x, y, z);
-                int range = areas.getInt(name + ".range");
-                return new FOPMR_ProtectedArea(owner, name, allowed, rank, loc, range);
-            }
+            String owner = (String) FOPMR_DatabaseInterface.getFromTable("NAME", name, "OWNER", "AREAS");;
+            Rank rank = FOPMR_Rank.getFromName((String) FOPMR_DatabaseInterface.getFromTable("NAME", name, "RANK", "AREAS"));
+            Gson gson = new Gson();
+            Type type = new TypeToken<ArrayList<String>>() {}.getType();
+            ArrayList<String> allowed = gson.fromJson((String) FOPMR_DatabaseInterface.getFromTable("NAME", name, "ALLOWED", "AREAS"), type);
+            double x = (Double) FOPMR_DatabaseInterface.getFromTable("NAME", name, "X", "AREAS");
+            double y = (Double) FOPMR_DatabaseInterface.getFromTable("NAME", name, "Y", "AREAS");
+            double z = (Double) FOPMR_DatabaseInterface.getFromTable("NAME", name, "Z", "AREAS");
+            World world = Bukkit.getWorld((String) FOPMR_DatabaseInterface.getFromTable("NAME", name, "WORLD", "AREAS"));
+            Location loc = new Location(world, x, y, z);
+            int range = (Integer) FOPMR_DatabaseInterface.getFromTable("NAME", name, "RANGE", "AREAS");
+            return new FOPMR_ProtectedArea(owner, name, allowed, rank, loc, range);
         }
-        return null;
+        catch(SQLException | JsonSyntaxException ex)
+        {
+            FreedomOpModRemastered.plugin.handleException(ex);
+            return null;
+        }
     }
 
     public static void addArea(FOPMR_ProtectedArea area)
     {
-        areas.set(area.getName() + ".owner", area.getOwner());
-        areas.set(area.getName() + ".rank", area.getRank().name);
-        areas.set(area.getName() + ".allowed", area.getAllowed());
-        areas.set(area.getName() + ".x", area.getLocation().getX());
-        areas.set(area.getName() + ".y", area.getLocation().getY());
-        areas.set(area.getName() + ".z", area.getLocation().getZ());
-        areas.set(area.getName() + ".world", area.getLocation().getWorld().getName());
-        areas.set(area.getName() + ".range", area.getRange());
-        config.saveConfig();
+        try
+        {
+            Connection c = FOPMR_DatabaseInterface.getConnection();
+            PreparedStatement statement = c.prepareStatement("INSERT OR IGNORE INTO AREAS (NAME, OWNER, RANK, WORLD, X, Y, Z, RANGE, ALLOWED) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            statement.setString(1, area.getName());
+            statement.setString(2, area.getOwner());
+            statement.setString(3, area.getRank().name);
+            Gson gson = new Gson();
+            Type type = new TypeToken<ArrayList<String>>() {}.getType();
+            statement.setString(9, gson.toJson(area.getAllowed(), type));
+            statement.setInt(5, (int) area.getLocation().getX());
+            statement.setInt(6, (int) area.getLocation().getY());
+            statement.setInt(7, (int) area.getLocation().getZ());
+            statement.setString(4, area.getLocation().getWorld().getName());
+            statement.setInt(8, area.getRange());
+            statement.execute();
+            c.commit();
+        }
+        catch(Exception ex)
+        {
+            FreedomOpModRemastered.plugin.handleException(ex);
+        }
     }
 
     public static void removeArea(FOPMR_ProtectedArea area)
@@ -196,7 +226,17 @@ public class FOPMR_ProtectedAreas
         {
             return;
         }
-        areas.set(area.getName(), null);
-        config.saveConfig();
+        try
+        {
+            Connection c = FOPMR_DatabaseInterface.getConnection();
+            PreparedStatement statement = c.prepareStatement("DELETE FROM AREAS WHERE NAME = ?");
+            statement.setString(1, area.getName());
+            statement.executeUpdate();
+            c.commit();
+        }
+        catch(Exception ex)
+        {
+            FreedomOpModRemastered.plugin.handleException(ex);
+        }
     }
 }

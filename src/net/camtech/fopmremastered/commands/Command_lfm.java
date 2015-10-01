@@ -8,8 +8,8 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
-@CommandParameters(name = "fopm", usage = "/fopm <reload>", description = "Check info about the plugin or reload the configuration file.")
-public class Command_fopm
+@CommandParameters(name = "lfm", usage = "/lfm <reload>", description = "Check info about the plugin or reload the configuration file.")
+public class Command_lfm
 {
 
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
@@ -21,7 +21,7 @@ public class Command_fopm
             {
                 if(!FOPMR_Rank.isAdmin(sender))
                 {
-                    sender.sendMessage(ChatColor.RED + "Only admins can reload the FOPM: R config.");
+                    sender.sendMessage(ChatColor.RED + "Only admins can reload the LemonFreedomMod config.");
                     return true;
                 }
                 FreedomOpModRemastered.plugin.reloadConfig();
@@ -29,10 +29,8 @@ public class Command_fopm
             }
             return true;
         }
-        sender.sendMessage(ChatColor.GREEN + "This is FreedomOpMod Remastered!");
-        sender.sendMessage(CUtils_Methods.randomChatColour() + "an all new form of All-Op management.");
-        sender.sendMessage(CUtils_Methods.colour("&-Created in the likes of the TFM but with more " + CUtils_Methods.randomChatColour() + "flexibility&- by " + CUtils_Methods.randomChatColour() + "Camzie99&-!"));
-
+        sender.sendMessage(ChatColor.GREEN + "This is LemonFreedomMod");
+        sender.sendMessage(CUtils_Methods.randomChatColour() + "Edited from Camzie99's FreedomOpMod: Remastered to better suite the LemonFreedom server.");
         return true;
     }
 

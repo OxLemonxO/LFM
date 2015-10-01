@@ -16,7 +16,6 @@ import org.bukkit.event.block.BlockPistonExtendEvent;
 import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 
-
 public class FOPMR_BlockListener implements Listener
 {
 
@@ -53,7 +52,7 @@ public class FOPMR_BlockListener implements Listener
     public void onBlockBreak(BlockBreakEvent event)
     {
         Player player = event.getPlayer();
-        for(FOPMR_ProtectedArea area : FOPMR_ProtectedAreas.getFromConfig())
+        for(FOPMR_ProtectedArea area : FOPMR_ProtectedAreas.getFromDatabase())
         {
             if(area.isInRange(event.getBlock().getLocation()))
             {
@@ -75,7 +74,7 @@ public class FOPMR_BlockListener implements Listener
             player.sendMessage(ChatColor.RED + "Only admins can use command blocks.");
             event.setCancelled(true);
         }
-        for(FOPMR_ProtectedArea area : FOPMR_ProtectedAreas.getFromConfig())
+        for(FOPMR_ProtectedArea area : FOPMR_ProtectedAreas.getFromDatabase())
         {
             if(area.isInRange(event.getBlock().getLocation()))
             {

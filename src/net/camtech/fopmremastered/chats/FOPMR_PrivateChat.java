@@ -1,14 +1,18 @@
 package net.camtech.fopmremastered.chats;
 
+import com.google.gson.Gson;
 import java.util.ArrayList;
+import net.camtech.fopmremastered.FOPMR_DatabaseInterface;
 import net.camtech.fopmremastered.FOPMR_Rank;
 import net.camtech.fopmremastered.FOPMR_Rank.Rank;
+import net.camtech.fopmremastered.FreedomOpModRemastered;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 public class FOPMR_PrivateChat
 {
+
     private final String owner;
     private final String name;
     private ChatColor colour;
@@ -23,7 +27,7 @@ public class FOPMR_PrivateChat
         this.allowed = new ArrayList<>();
         this.rank = FOPMR_Rank.getRank(owner);
     }
-    
+
     public FOPMR_PrivateChat(String owner, String name, ChatColor colour, ArrayList<String> allowed, Rank rank)
     {
         this.owner = owner;
@@ -32,32 +36,32 @@ public class FOPMR_PrivateChat
         this.allowed = allowed;
         this.rank = rank;
     }
-    
+
     public String getName()
     {
         return this.name;
     }
-    
+
     public String getOwner()
     {
         return this.owner;
     }
-    
+
     public Rank getRank()
     {
         return this.rank;
     }
-    
+
     public ChatColor getColour()
     {
         return this.colour;
     }
-    
+
     public ArrayList<String> getAllowed()
     {
         return this.allowed;
     }
-    
+
     public void sendToChat(Player player, String message)
     {
         for(String to : allowed)
@@ -84,7 +88,7 @@ public class FOPMR_PrivateChat
             }
         }
     }
-    
+
     public boolean canAccess(Player player)
     {
         if(isOwner(player))
@@ -93,19 +97,25 @@ public class FOPMR_PrivateChat
         }
         return allowed.contains(player.getName());
     }
-    
+
     public boolean changeColour(Player sender, ChatColor colour)
     {
         if(!isOwner(sender))
         {
             return false;
         }
-        this.colour = colour;
-        FOPMR_PrivateChats.chats.set(name + ".colour", this.colour.getChar());
-        FOPMR_PrivateChats.config.saveConfig();
+        try
+        {
+            this.colour = colour;
+            FOPMR_DatabaseInterface.updateInTable("NAME", this.name, Character.toString(this.colour.getChar()), "COLOUR", "CHATS");
+        }
+        catch(Exception ex)
+        {
+            FreedomOpModRemastered.plugin.handleException(ex);
+        }
         return true;
     }
-    
+
     public boolean addPlayer(Player sender, Player player)
     {
         if(!isOwner(sender))
@@ -116,13 +126,19 @@ public class FOPMR_PrivateChat
         {
             return false;
         }
-        this.allowed.add(player.getName());
-        FOPMR_PrivateChats.chats.set(name + ".allowed", this.allowed);
-        FOPMR_PrivateChats.config.saveConfig();
-        player.sendMessage(ChatColor.GREEN + "You have been added to the private chat " + this.name + " by " + sender.getName() + ". You can access this chat by typing /pchat " + this.name + " or you can leave by typing /pchat remove " + this.name + " " + player.getName() + ".");
+        try
+        {
+            this.allowed.add(player.getName());
+            FOPMR_DatabaseInterface.updateInTable("NAME", this.name, (new Gson()).toJson(this.allowed), "ALLOWED", "CHATS");
+            player.sendMessage(ChatColor.GREEN + "You have been added to the private chat " + this.name + " by " + sender.getName() + ". You can access this chat by typing /pchat " + this.name + " or you can leave by typing /pchat remove " + this.name + " " + player.getName() + ".");
+        }
+        catch(Exception ex)
+        {
+            FreedomOpModRemastered.plugin.handleException(ex);
+        }
         return true;
     }
-    
+
     public boolean removePlayer(Player sender, Player player)
     {
         if((!isOwner(sender) && !sender.getName().equals(player.getName())) || !this.allowed.contains(player.getName()))
@@ -131,14 +147,20 @@ public class FOPMR_PrivateChat
         }
         if(this.allowed.contains(player.getName()))
         {
-            this.allowed.remove(player.getName());
-            FOPMR_PrivateChats.chats.set(name + ".allowed", this.allowed);
-            FOPMR_PrivateChats.config.saveConfig();
+            try
+            {
+                this.allowed.remove(player.getName());
+                FOPMR_DatabaseInterface.updateInTable("NAME", this.name, (new Gson()).toJson(this.allowed), "ALLOWED", "CHATS");
+            }
+            catch(Exception ex)
+            {
+                FreedomOpModRemastered.plugin.handleException(ex);
+            }
             return true;
         }
         return false;
     }
-    
+
     public boolean isOwner(Player player)
     {
         if(FOPMR_Rank.isEqualOrHigher(FOPMR_Rank.getRank(player), rank))

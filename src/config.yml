@@ -1,0 +1,88 @@
+## Welcome to FreedomOpMod: Remastered's main config file - By Camzie99 ##
+
+#General Configuration Settings
+general:
+    #Has an owner already been added?
+    owner: false
+    #What is your server named?
+    name: "FreedomOp: Remastered!"
+    #What clearance level is required to access the server.
+    accessLevel: 0
+    #What message should be displayed on join? %player% replaces with player name.
+    joinMessage: "&-&lWelcome to FreedomOp %player%, I hope you have a great time! If you enjoy the server please vote for us at the links in /votelinks!"
+    #Should the main world wipe on start?
+    wipe: false
+    #What URL should be shown for ban appeals?
+    url: "fop.us.to"
+    #What URL should be shown for admin applications?
+    admininfo: "http://fop.us.to/forums/index.php?threads/application-template-must-be-followed.2/"
+    #Who should Ops see for information regarding applications?
+    adminmanager: DarkHorse108
+    
+#Don't mess with this if you don't know what it is.
+#REST configuration details for Xenforo forums.
+rest:
+    #Is the rest API compatibility enabled?
+    enabled: false
+    #What user should the plugin post as?
+    user: ""
+    #What is the URL for your REST API?
+    url: ""
+    #What is your REST API key?
+    key: ""
+    #Thread ID for server status
+    statusid: 903
+    #Thread ID for admin removals
+    removalsid: 680
+    #Thread ID for bans
+    banid: 899
+    #Thread ID for promotions
+    promotionsid: 897
+    #Thread ID for lockdowns
+    lockdownid: 896
+    
+jumppads:
+    #Are jumppads enabled?
+    enabled: false
+    #What strength should jumppads be? (Keep this less than or equal to 10!)
+    strength: 5
+    #Are speedpads enabled?
+    speed: false
+    #What strength should speedpads be? (Keep this less than or equal to 10!)
+    speedstrength: 5
+
+toggles:
+    #Are explosions enabled?
+    explosions: false
+    #Can ops place water?
+    waterplace: false
+    #Can ops place lava?
+    lavaplace: false
+    #Can ops place fire or fire spread?
+    fire: false
+    #Can water flow?
+    waterspread: false
+    #Can lava flow?
+    lavaspread: false
+    #Can you damage pets?
+    petdamage: false
+    #Is weather enabled?
+    weather: false
+    #Is time enabled?
+    time: false
+    #Are item drops enabled?
+    drops: false
+    #Are slimes enabled?
+    slime: false
+    #Are giants enabled?
+    giant: false
+    #Are enderdragons enabled?
+    enderdragon: false
+    #Are ghasts enabled?
+    ghast: false
+    #Are withers enabled?
+    wither: false
+    #Are admin applications enabled?
+    apps: true
+    #Is the SUPERBOW enabled?
+    superBow: false

@@ -1,6 +1,7 @@
 package net.camtech.fopmremastered.commands;
 
 import net.camtech.fopmremastered.FOPMR_Commons;
+import net.camtech.fopmremastered.FOPMR_DatabaseInterface;
 import static net.camtech.fopmremastered.FOPMR_Rank.Rank.SPECIALIST;
 import net.camtech.fopmremastered.FreedomOpModRemastered;
 import net.camtech.fopmremastered.worlds.FOPMR_WorldManager;
@@ -10,9 +11,10 @@ import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
-@CommandParameters(name="loadworld", usage="/loadworld [world]", description="Load an unloaded world.", rank=SPECIALIST)
+@CommandParameters(name = "loadworld", usage = "/loadworld [world]", description = "Load an unloaded world.", rank = SPECIALIST)
 public class Command_loadworld
 {
+
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
     {
         if(args.length != 1)
@@ -27,14 +29,21 @@ public class Command_loadworld
                 return true;
             }
         }
-        if(!FreedomOpModRemastered.configs.getWorlds().getConfig().contains(args[0]))
+        try
         {
-            sender.sendMessage(ChatColor.RED + "The world you are trying to load, does not exist or is not a custom FOPM: R world.");
-            return true;
+            if(FOPMR_DatabaseInterface.getFromTable("NAME", args[0], "NAME", "WORLDS") == null)
+            {
+                sender.sendMessage(ChatColor.RED + "The world you are trying to load, does not exist or is not a custom FOPM: R world.");
+                return true;
+            }
+            FOPMR_WorldManager.loadWorld(args[0]);
+            World world = Bukkit.getWorld(args[0]);
+            FOPMR_Commons.adminAction(sender.getName(), "loading the world: \"" + world.getName() + "\" into memory.", false);
         }
-        FOPMR_WorldManager.loadWorld(args[0]);
-        World world = Bukkit.getWorld(args[0]);
-        FOPMR_Commons.adminAction(sender.getName(), "loading the world: \"" + world.getName() + "\" into memory.", false);
+        catch(Exception ex)
+        {
+            FreedomOpModRemastered.plugin.handleException(ex);
+        }
         return true;
     }
 }

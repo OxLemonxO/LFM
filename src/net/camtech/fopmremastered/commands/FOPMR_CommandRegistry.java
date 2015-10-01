@@ -15,12 +15,11 @@ import net.camtech.fopmremastered.FreedomOpModRemastered;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandMap;
-import org.bukkit.command.PluginCommand;
 
 public class FOPMR_CommandRegistry
 {
     private static CommandMap cmap = getCommandMap();
-    private static ArrayList<String> commands = new ArrayList<>();
+    private static final ArrayList<String> commands = new ArrayList<>();
 
     public FOPMR_CommandRegistry()
     {
@@ -85,13 +84,7 @@ public class FOPMR_CommandRegistry
 
     public static boolean isFOPMRCommand(String name)
     {
-        Command cmd = cmap.getCommand(name);
-        if (!(cmd instanceof PluginCommand))
-        {
-            return true;
-        }
-        PluginCommand command = (PluginCommand) cmd;
-        return command.getPlugin() == FreedomOpModRemastered.plugin;
+        return FOPMR_CommandRegistry.commands.contains(name.toLowerCase());
     }
 
     private static CommandMap getCommandMap()

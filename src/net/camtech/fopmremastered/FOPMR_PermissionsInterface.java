@@ -32,23 +32,4 @@ public class FOPMR_PermissionsInterface
         PermissionAttachment attach = attachments.get(player);
         attach.setPermission(permission, false);
     }
-    
-    public static void removeMoreProtectPermissions(Player player)
-    {
-        if(!FOPMR_Rank.isAdmin(player))
-        { 
-            removePermission(player, "moreprotect.trust.other");
-            removePermission(player, "moreprotect.alert");
-            removePermission(player, "moreprotect.trust");
-            removePermission(player, "moreprotect.is.exempt");
-            removePermission(player, "moreprotect.exempt");
-            removePermission(player, "moreprotect.highlight");
-            removePermission(player, "moreprotect.drop");
-            removePermission(player, "moreprotect.ignore");
-            removePermission(player, "moreprotect.confirm");
-            removePermission(player, "moreprotect.teleport");
-            removePermission(player, "moreprotect.view");
-            removePermission(player, "moreprotect.remove");
-        }
-    }
 }

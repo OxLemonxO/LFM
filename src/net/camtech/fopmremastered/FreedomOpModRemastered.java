@@ -1,8 +1,9 @@
 package net.camtech.fopmremastered;
 
-import java.io.File;
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.logging.Level;
-import net.camtech.camutils.CUtils_Methods;
+import java.util.logging.Logger;
 import net.camtech.fopmremastered.commands.FOPMR_CommandRegistry;
 import net.camtech.fopmremastered.listeners.FOPMR_BlockListener;
 import net.camtech.fopmremastered.listeners.FOPMR_CamVerifyListener;
@@ -11,7 +12,8 @@ import net.camtech.fopmremastered.listeners.FOPMR_JumpListener;
 import net.camtech.fopmremastered.listeners.FOPMR_PlayerListener;
 import net.camtech.fopmremastered.listeners.FOPMR_TelnetListener;
 import net.camtech.fopmremastered.listeners.FOPMR_ToggleableEventsListener;
-import net.camtech.fopmremastered.listeners.FOPMR_VoteListener;
+import net.camtech.fopmremastered.listeners.FOPMR_WorldEditListener;
+import net.camtech.fopmremastered.FOPMR_Commons;
 import net.camtech.fopmremastered.worlds.FOPMR_WorldManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -20,41 +22,40 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
-import java.util.function.Function;
-import org.bukkit.plugin.ServicePriority;
 
 public class FreedomOpModRemastered extends JavaPlugin
 {
 
     public static FreedomOpModRemastered plugin;
-    public static FOPMR_Configs configs;
     public static FOPMR_CommandRegistry commandregistry;
     public static FOPMR_PlayerListener playerlistener;
     public static FOPMR_TelnetListener telnetlistener;
     public static FOPMR_CamVerifyListener camverifylistener;
     public static FOPMR_ToggleableEventsListener toggleableeventslistener;
     public static FOPMR_CamzieListener camzielistener;
-    public static FOPMR_VoteListener votelistener;
     public static FOPMR_BlockListener blocklistener;
     public static FOPMR_JumpListener jumplistener;
+    public static FOPMR_WorldEditListener worldeditlistener;
+    public static SocketServer socketServer;
+    public static FileConfiguration config;
+    public static Thread thread;
 
-    
     @Override
     public void onEnable()
     {
-        
         plugin = this;
         PluginDescriptionFile pdf = this.getDescription();
         getLogger().log(Level.INFO, "{0}{1} v. {2} by {3} has been enabled!", new Object[]
         {
             ChatColor.BLUE, pdf.getName(), pdf.getVersion(), pdf.getAuthors()
         });
-        configs = FreedomOpModRemasteredConfigs.configs;
-        if(configs.getMainConfig().getConfig().getBoolean("general.wipe"))
+        try
         {
-            Bukkit.broadcastMessage("Wiping main world.");
-            configs.getMainConfig().getConfig().set("general.wipe", false);
-            CUtils_Methods.deleteWorld(new File("world"));
+            FOPMR_DatabaseInterface.prepareDatabase();
+        }
+        catch(Exception ex)
+        {
+            plugin.handleException(ex);
         }
         commandregistry = new FOPMR_CommandRegistry();
         playerlistener = new FOPMR_PlayerListener();
@@ -62,23 +63,41 @@ public class FreedomOpModRemastered extends JavaPlugin
         camverifylistener = new FOPMR_CamVerifyListener();
         toggleableeventslistener = new FOPMR_ToggleableEventsListener();
         camzielistener = new FOPMR_CamzieListener();
-        votelistener = new FOPMR_VoteListener();
         blocklistener = new FOPMR_BlockListener();
         jumplistener = new FOPMR_JumpListener();
+        worldeditlistener = new FOPMR_WorldEditListener();
+        config = this.getConfig();
+        this.saveDefaultConfig();
+        if(!config.getBoolean("general.owner"))
+        {
+            System.out.println("Welcome to the FreedomOpMod: Remastered, an Owner has not yet been defined, to set yourself to Owner please run \"/owner " + FOPMR_Commons.verifyCode + "\" in-game to set yourself to the Owner rank!");
+        }
+        else
+        {
+            FOPMR_Commons.verifyCode = null;
+        }
         FOPMR_WorldManager.loadWorldsFromConfig();
         FOPMR_Announcements.setup();
-        for (Player player : Bukkit.getOnlinePlayers())
+        FOPMR_Rank rank = new FOPMR_Rank();
+        for(Player player : Bukkit.getOnlinePlayers())
         {
-            FileConfiguration config = configs.getAdmins().getConfig();
-            if (config.getBoolean(player.getUniqueId().toString() + ".imposter"))
+            try
             {
-                FOPMR_Commons.imposters.add(player.getName());
+                if(FOPMR_DatabaseInterface.getBooleanFromTable("UUID", player.getUniqueId().toString(), "IMPOSTER", "PLAYERS"))
+                {
+                    FOPMR_Commons.imposters.add(player.getName());
+                }
+            }
+            catch(SQLException ex)
+            {
+                Logger.getLogger(FreedomOpModRemastered.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-        FOPMR_RestManager.sendMessage(configs.getMainConfig().getConfig().getInt("rest.statusid"), "FreedomOpMod: Remastered has just been enabled.");
-        this.getServer().getServicesManager().register(Function.class, FOPMR_Rank.ADMIN_SERVICE, plugin, ServicePriority.Highest);
+        FOPMR_RestManager.sendMessage(config.getInt("rest.statusid"), "FreedomOpMod: Remastered has just been enabled.");
+        socketServer = new SocketServer();
+        thread = new Thread(socketServer);
+        thread.start();
     }
-    
 
     @Override
     public void onDisable()
@@ -94,6 +113,21 @@ public class FreedomOpModRemastered extends JavaPlugin
         {
             ChatColor.RED, pdf.getName()
         });
-        FOPMR_RestManager.sendMessage(configs.getMainConfig().getConfig().getInt("rest.statusid"), "FreedomOpMod: Remastered has just been disabled.");
+        FOPMR_RestManager.sendMessage(config.getInt("rest.statusid"), "FreedomOpMod: Remastered has just been disabled.");
+        try
+        {
+            socketServer.sock.close();
+        }
+        catch(IOException ex)
+        {
+            Logger.getLogger(FreedomOpModRemastered.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        FOPMR_DatabaseInterface.closeConnection(FOPMR_DatabaseInterface.getConnection());
+    }
+
+    public void handleException(Exception ex)
+    {
+        getLogger().log(Level.SEVERE, null, ex);
+        System.out.println("An exception has occurred in LemonFreedomMod, it is very likely this was an SQLite error, please check the logs for more details!");
     }
 }

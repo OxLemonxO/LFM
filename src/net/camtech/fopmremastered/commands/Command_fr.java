@@ -1,7 +1,10 @@
 package net.camtech.fopmremastered.commands;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.util.Arrays;
 import net.camtech.fopmremastered.FOPMR_Commons;
+import net.camtech.fopmremastered.FOPMR_DatabaseInterface;
 import net.camtech.fopmremastered.FOPMR_Rank;
 import net.camtech.fopmremastered.FOPMR_Rank.Rank;
 import net.camtech.fopmremastered.FreedomOpModRemastered;
@@ -22,40 +25,50 @@ public class Command_fr extends FOPMR_Command
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
     {
-        if (args.length == 0)
+        try
         {
-            FOPMR_Commons.adminAction(sender.getName(), "Toggling freeze over all players on the server.", true);
-            FOPMR_Commons.globalFreeze = !FOPMR_Commons.globalFreeze;
-            for (Player player : Bukkit.getOnlinePlayers())
+            if(args.length == 0)
             {
-                if(FOPMR_Rank.isAdmin(player))
+                FOPMR_Commons.adminAction(sender.getName(), "Toggling freeze over all players on the server.", true);
+                FOPMR_Commons.globalFreeze = !FOPMR_Commons.globalFreeze;
+                Connection c = FOPMR_DatabaseInterface.getConnection();
+                for(Player player : Bukkit.getOnlinePlayers())
                 {
-                    continue;
+                    if(FOPMR_Rank.isAdmin(player))
+                    {
+                        continue;
+                    }
+                    PreparedStatement statement = c.prepareStatement("UPDATE PLAYERS SET FROZEN = ? WHERE UUID = ?");
+                    statement.setBoolean(1, FOPMR_Commons.globalFreeze);
+                    statement.setString(2, player.getUniqueId().toString());
+                    statement.executeUpdate();
+                    player.sendMessage((FOPMR_DatabaseInterface.getBooleanFromTable("UUID", player.getUniqueId().toString(), "FROZEN", "PLAYERS") ? (ChatColor.RED + "You are now frozen.") : (ChatColor.AQUA + "You are now unfrozen.")));
                 }
-                FreedomOpModRemastered.configs.getAdmins().getConfig().set(player.getUniqueId().toString() + ".freeze", FOPMR_Commons.globalFreeze);
-                FreedomOpModRemastered.configs.getAdmins().saveConfig();
-                player.sendMessage((FreedomOpModRemastered.configs.getAdmins().getConfig().getBoolean(player.getUniqueId().toString() + ".freeze") ? (ChatColor.RED + "You are now frozen.") : (ChatColor.AQUA + "You are now unfrozen.")));
+                c.commit();
+                return true;
             }
-            return true;
+            if(args.length == 1)
+            {
+                Player player = FOPMR_Rank.getPlayer(args[0]);
+                if(player == null)
+                {
+                    sender.sendMessage("Player is not online.");
+                    return true;
+                }
+                if(FOPMR_Rank.isEqualOrHigher(FOPMR_Rank.getRank(player), FOPMR_Rank.getRank(sender)))
+                {
+                    sender.sendMessage(ChatColor.RED + "You can only freeze someone who is a lower clearance level than yourself.");
+                    return true;
+                }
+                FOPMR_Commons.adminAction(sender.getName(), "Toggling freeze over " + player.getName() + ".", true);
+                FOPMR_DatabaseInterface.updateInTable("UUID", player.getUniqueId().toString(), !(FOPMR_DatabaseInterface.getBooleanFromTable("UUID", player.getUniqueId().toString(), "FROZEN", "PLAYERS")), "FROZEN", "PLAYERS");
+                player.sendMessage((FOPMR_DatabaseInterface.getBooleanFromTable("UUID", player.getUniqueId().toString(), "FROZEN", "PLAYERS") ? (ChatColor.RED + "You are now frozen.") : (ChatColor.AQUA + "You are now unfrozen.")));
+                return true;
+            }
         }
-        if (args.length == 1)
+        catch(Exception ex)
         {
-            Player player = FOPMR_Rank.getPlayer(args[0]);
-            if (player == null)
-            {
-                sender.sendMessage("Player is not online.");
-                return true;
-            }
-            if(FOPMR_Rank.isEqualOrHigher(FOPMR_Rank.getRank(player), FOPMR_Rank.getRank(sender)))
-            {
-                sender.sendMessage(ChatColor.RED + "You can only freeze someone who is a lower clearance level than yourself.");
-                return true;
-            }
-            FOPMR_Commons.adminAction(sender.getName(), "Toggling freeze over " + player.getName() + ".", true);
-            FreedomOpModRemastered.configs.getAdmins().getConfig().set(player.getUniqueId().toString() + ".freeze", !FreedomOpModRemastered.configs.getAdmins().getConfig().getBoolean(player.getUniqueId().toString() + ".freeze"));
-            FreedomOpModRemastered.configs.getAdmins().saveConfig();
-            player.sendMessage((FreedomOpModRemastered.configs.getAdmins().getConfig().getBoolean(player.getUniqueId().toString() + ".freeze") ? (ChatColor.RED + "You are now frozen.") : (ChatColor.AQUA + "You are now unfrozen.")));
-            return true;
+            FreedomOpModRemastered.plugin.handleException(ex);
         }
         return false;
     }

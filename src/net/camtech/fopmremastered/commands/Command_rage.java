@@ -21,7 +21,7 @@ public class Command_rage extends FOPMR_Command
     {
         Player player = (Player) sender;
         
-        if (!args[0].equalIgnoreCase("-f"))
+        if (!args[0].equalsIgnoreCase("-f"))
         {
             Bukkit.broadcastMessage(ChatColor.RED + player.getName() + " has exploded with rage!");
             player.getInventory().clear();

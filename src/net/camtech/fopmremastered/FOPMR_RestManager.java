@@ -14,7 +14,7 @@ public class FOPMR_RestManager
 
     public static void sendMessage(int threadId, String message)
     {
-        FileConfiguration config = FreedomOpModRemastered.configs.getMainConfig().getConfig();
+        FileConfiguration config = FreedomOpModRemastered.plugin.getConfig();
         if(config.getBoolean("rest.enabled"))
         {
             String query = "action=createPost&thread_id=" + threadId + "&hash=" + config.getString("rest.key") + "&message=" + message + "&grab_as=" + config.getString("rest.user") /*"FreedomOpMod: Post Bot"*/;

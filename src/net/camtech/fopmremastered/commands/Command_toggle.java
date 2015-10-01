@@ -20,29 +20,29 @@ public class Command_toggle extends FOPMR_Command
         if (args.length == 0)
         {
             sender.sendMessage(ChatColor.AQUA + "Possible toggles:");
-            for (String toggle : FreedomOpModRemastered.configs.getMainConfig().getConfig().getConfigurationSection("toggles").getKeys(false))
+            for (String toggle : FreedomOpModRemastered.plugin.getConfig().getConfigurationSection("toggles").getKeys(false))
             {
-                sender.sendMessage(" - " + (FreedomOpModRemastered.configs.getMainConfig().getConfig().getBoolean("toggles." + toggle) ? ChatColor.GREEN : ChatColor.RED) + toggle);
+                sender.sendMessage(" - " + (FreedomOpModRemastered.plugin.getConfig().getBoolean("toggles." + toggle) ? ChatColor.GREEN : ChatColor.RED) + toggle);
             }
             return true;
         }
         if (args.length == 1)
         {
-            for (String toggle : FreedomOpModRemastered.configs.getMainConfig().getConfig().getConfigurationSection("toggles").getKeys(false))
+            for (String toggle : FreedomOpModRemastered.plugin.getConfig().getConfigurationSection("toggles").getKeys(false))
             {
                 if (args[0].equalsIgnoreCase(toggle))
                 {
-                    FreedomOpModRemastered.configs.getMainConfig().getConfig().set("toggles." + toggle, !FreedomOpModRemastered.configs.getMainConfig().getConfig().getBoolean("toggles." + toggle));
-                    FreedomOpModRemastered.configs.getMainConfig().saveConfig();
-                    sender.sendMessage(ChatColor.GOLD + "Toggled " + toggle + (FreedomOpModRemastered.configs.getMainConfig().getConfig().getBoolean("toggles." + toggle) ? " on." : " off."));
+                    FreedomOpModRemastered.plugin.getConfig().set("toggles." + toggle, !FreedomOpModRemastered.plugin.getConfig().getBoolean("toggles." + toggle));
+                    FreedomOpModRemastered.plugin.saveConfig();
+                    sender.sendMessage(ChatColor.GOLD + "Toggled " + toggle + (FreedomOpModRemastered.plugin.getConfig().getBoolean("toggles." + toggle) ? " on." : " off."));
                     FOPMR_ToggleableEventsListener.checkTime();
                     return true;
                 }
             }
             sender.sendMessage(ChatColor.AQUA + "Possible toggles:");
-            for (String toggle : FreedomOpModRemastered.configs.getMainConfig().getConfig().getConfigurationSection("toggles").getKeys(false))
+            for (String toggle : FreedomOpModRemastered.plugin.getConfig().getConfigurationSection("toggles").getKeys(false))
             {
-                sender.sendMessage(" - " + (FreedomOpModRemastered.configs.getMainConfig().getConfig().getBoolean("toggles." + toggle) ? ChatColor.GREEN : ChatColor.RED) + toggle);
+                sender.sendMessage(" - " + (FreedomOpModRemastered.plugin.getConfig().getBoolean("toggles." + toggle) ? ChatColor.GREEN : ChatColor.RED) + toggle);
             }
             return true;
         }

@@ -1,8 +1,12 @@
 package net.camtech.fopmremastered.commands;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.util.Arrays;
 import net.camtech.camutils.CUtils_Methods;
+import net.camtech.fopmremastered.FOPMR_DatabaseInterface;
 import net.camtech.fopmremastered.FreedomOpModRemastered;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -20,11 +24,11 @@ public class Command_nick extends FOPMR_Command
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
     {
-        if (args.length == 0)
+        if(args.length == 0)
         {
             return false;
         }
-        if (!(sender instanceof Player))
+        if(!(sender instanceof Player))
         {
             sender.sendMessage("This can only be used in-game.");
             return true;
@@ -60,19 +64,20 @@ public class Command_nick extends FOPMR_Command
             sender.sendMessage(ChatColor.RED + "Your nick must have at least 3 alphanumeric characters consecutively.");
             return true;
         }
-        if(!FreedomOpModRemastered.configs.getAdmins().getConfig().getBoolean(player.getUniqueId().toString() + ".randomChatColour") && nick.contains("&-"))
+        player.sendMessage(ChatColor.GREEN + "Setting nick to " + CUtils_Methods.colour(StringUtils.join(args, " ")) + ChatColor.GREEN + ".");
+        try
         {
-            player.sendMessage(ChatColor.RED + "You cannot use random chat colours, you must purchase it in the VoteShop (/vs).");
-            nick = nick.replaceAll("&-", "");
+            Connection c = FOPMR_DatabaseInterface.getConnection();
+            PreparedStatement statement = c.prepareStatement("UPDATE PLAYERS SET NICK = ? WHERE UUID = ?");
+            statement.setString(1, nick + "&r");
+            statement.setString(2, player.getUniqueId().toString());
+            statement.executeUpdate();
+            c.commit();
         }
-        if(!FreedomOpModRemastered.configs.getAdmins().getConfig().getBoolean(player.getUniqueId().toString() + ".chatColours") && CUtils_Methods.hasChatColours(nick))
+        catch(Exception ex)
         {
-            player.sendMessage(ChatColor.RED + "You cannot use chat colours, you may purchase them in the VoteShop (/vs).");
-            nick = nick.replaceAll("&.", "");
+            FreedomOpModRemastered.plugin.handleException(ex);
         }
-        FreedomOpModRemastered.configs.getAdmins().getConfig().set(player.getUniqueId().toString() + ".displayName", nick + "&r");
-        FreedomOpModRemastered.configs.getAdmins().saveConfig();
-        player.sendMessage(ChatColor.GREEN + "Nick set to " + CUtils_Methods.colour(StringUtils.join(args, " ")));
         return true;
     }
 

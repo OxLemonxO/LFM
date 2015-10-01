@@ -1,7 +1,9 @@
 package net.camtech.fopmremastered.worlds;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import net.camtech.camutils.CUtils_Methods;
+import net.camtech.fopmremastered.FOPMR_DatabaseInterface;
 import net.camtech.fopmremastered.FOPMR_Rank;
 import net.camtech.fopmremastered.FOPMR_Rank.Rank;
 import net.camtech.fopmremastered.FreedomOpModRemastered;
@@ -21,88 +23,108 @@ public class FOPMR_WorldManager
 
     public static void loadWorldsFromConfig()
     {
-        for(String worldName : FreedomOpModRemastered.configs.getWorlds().getConfig().getKeys(false))
+        try
         {
-            if(!FreedomOpModRemastered.configs.getWorlds().getConfig().getBoolean(worldName + ".onenable"))
+            ArrayList<Object> results = FOPMR_DatabaseInterface.getAsArrayList(null, null, "NAME", "WORLDS");
+            for(Object result : results)
             {
-                continue;
-            }
-            if(FreedomOpModRemastered.configs.getWorlds().getConfig().getString(worldName + ".generator").equalsIgnoreCase("flat"))
-            {
-                createNewWorld(worldName, new FOPMR_FlatGenerator(), FOPMR_Rank.getFromName(FreedomOpModRemastered.configs.getWorlds().getConfig().getString(worldName + ".rank")));
-            }
-            else if(FreedomOpModRemastered.configs.getWorlds().getConfig().getString(worldName + ".generator").equalsIgnoreCase("default"))
-            {
-                createNewWorld(worldName, FOPMR_Rank.getFromName(FreedomOpModRemastered.configs.getWorlds().getConfig().getString(worldName + ".rank")));
-            }
-            else if(FreedomOpModRemastered.configs.getWorlds().getConfig().getString(worldName + ".generator").equalsIgnoreCase("empty"))
-            {
-                createNewWorld(worldName, new FOPMR_EmptyGenerator(), FOPMR_Rank.getFromName(FreedomOpModRemastered.configs.getWorlds().getConfig().getString(worldName + ".rank")));
-            }
-            else if(FreedomOpModRemastered.configs.getWorlds().getConfig().getString(worldName + ".generator").equalsIgnoreCase("rollinghills"))
-            {
-                createNewWorld(worldName, new FOPMR_RollinghillsGenerator(), FOPMR_Rank.getFromName(FreedomOpModRemastered.configs.getWorlds().getConfig().getString(worldName + ".rank")));
-            }
-            else
-            {
-                Bukkit.broadcastMessage(ChatColor.RED + "The world: " + worldName + " could not be loaded because its generator was invalid!");
+                String worldName = (String) result;
+                if(!FOPMR_DatabaseInterface.getBooleanFromTable("NAME", worldName, "ONENABLE", "WORLDS"))
+                {
+                    continue;
+                }
+                if(((String) FOPMR_DatabaseInterface.getFromTable("NAME", worldName, "GENERATOR", "WORLDS")).equalsIgnoreCase("flat"))
+                {
+                    createNewWorld(worldName, new FOPMR_FlatGenerator(), FOPMR_Rank.getFromName(((String) FOPMR_DatabaseInterface.getFromTable("NAME", worldName, "RANK", "WORLDS"))));
+                }
+                else if(((String) FOPMR_DatabaseInterface.getFromTable("NAME", worldName, "GENERATOR", "WORLDS")).equalsIgnoreCase("default"))
+                {
+                    createNewWorld(worldName, FOPMR_Rank.getFromName(((String) FOPMR_DatabaseInterface.getFromTable("NAME", worldName, "RANK", "WORLDS"))));
+                }
+                else if(((String) FOPMR_DatabaseInterface.getFromTable("NAME", worldName, "GENERATOR", "WORLDS")).equalsIgnoreCase("empty"))
+                {
+                    createNewWorld(worldName, new FOPMR_EmptyGenerator(), FOPMR_Rank.getFromName(((String) FOPMR_DatabaseInterface.getFromTable("NAME", worldName, "RANK", "WORLDS"))));
+                }
+                else if(((String) FOPMR_DatabaseInterface.getFromTable("NAME", worldName, "GENERATOR", "WORLDS")).equalsIgnoreCase("rollinghills"))
+                {
+                    createNewWorld(worldName, new FOPMR_RollinghillsGenerator(), FOPMR_Rank.getFromName(((String) FOPMR_DatabaseInterface.getFromTable("NAME", worldName, "RANK", "WORLDS"))));
+                }
+                else
+                {
+                    Bukkit.broadcastMessage(ChatColor.RED + "The world: " + worldName + " could not be loaded because its generator was invalid!");
+                }
             }
         }
+        catch(Exception ex)
+        {
+            FreedomOpModRemastered.plugin.handleException(ex);
+        }
     }
+
     public static void reloadWorldsFromConfig()
     {
-        for(String worldName : FreedomOpModRemastered.configs.getWorlds().getConfig().getKeys(false))
+        try
         {
-            if(FreedomOpModRemastered.configs.getWorlds().getConfig().getString(worldName + ".generator").equalsIgnoreCase("flat"))
+            for(Object result : FOPMR_DatabaseInterface.getAsArrayList(null, null, "NAME", "WORLDS"))
             {
-                createNewWorld(worldName, new FOPMR_FlatGenerator(), FOPMR_Rank.getFromName(FreedomOpModRemastered.configs.getWorlds().getConfig().getString(worldName + ".rank")));
+                String worldName = (String) result;
+                if(((String) FOPMR_DatabaseInterface.getFromTable("NAME", worldName, "GENERATOR", "WORLDS")).equalsIgnoreCase("flat"))
+                {
+                    createNewWorld(worldName, new FOPMR_FlatGenerator(), FOPMR_Rank.getFromName(((String) FOPMR_DatabaseInterface.getFromTable("NAME", worldName, "RANK", "WORLDS"))));
+                }
+                else if(((String) FOPMR_DatabaseInterface.getFromTable("NAME", worldName, "GENERATOR", "WORLDS")).equalsIgnoreCase("default"))
+                {
+                    createNewWorld(worldName, FOPMR_Rank.getFromName(((String) FOPMR_DatabaseInterface.getFromTable("NAME", worldName, "RANK", "WORLDS"))));
+                }
+                else if(((String) FOPMR_DatabaseInterface.getFromTable("NAME", worldName, "GENERATOR", "WORLDS")).equalsIgnoreCase("empty"))
+                {
+                    createNewWorld(worldName, new FOPMR_EmptyGenerator(), FOPMR_Rank.getFromName(((String) FOPMR_DatabaseInterface.getFromTable("NAME", worldName, "RANK", "WORLDS"))));
+                }
+                else if(((String) FOPMR_DatabaseInterface.getFromTable("NAME", worldName, "GENERATOR", "WORLDS")).equalsIgnoreCase("rollinghills"))
+                {
+                    createNewWorld(worldName, new FOPMR_RollinghillsGenerator(), FOPMR_Rank.getFromName(((String) FOPMR_DatabaseInterface.getFromTable("NAME", worldName, "RANK", "WORLDS"))));
+                }
+                else
+                {
+                    Bukkit.broadcastMessage(ChatColor.RED + "The world: " + worldName + " could not be loaded because its generator was invalid!");
+                }
             }
-            else if(FreedomOpModRemastered.configs.getWorlds().getConfig().getString(worldName + ".generator").equalsIgnoreCase("default"))
-            {
-                createNewWorld(worldName, FOPMR_Rank.getFromName(FreedomOpModRemastered.configs.getWorlds().getConfig().getString(worldName + ".rank")));
-            }
-            else if(FreedomOpModRemastered.configs.getWorlds().getConfig().getString(worldName + ".generator").equalsIgnoreCase("empty"))
-            {
-                createNewWorld(worldName, new FOPMR_EmptyGenerator(), FOPMR_Rank.getFromName(FreedomOpModRemastered.configs.getWorlds().getConfig().getString(worldName + ".rank")));
-            }
-            else if(FreedomOpModRemastered.configs.getWorlds().getConfig().getString(worldName + ".generator").equalsIgnoreCase("rollinghills"))
-            {
-                createNewWorld(worldName, new FOPMR_RollinghillsGenerator(), FOPMR_Rank.getFromName(FreedomOpModRemastered.configs.getWorlds().getConfig().getString(worldName + ".rank")));
-            }
-            else
-            {
-                Bukkit.broadcastMessage(ChatColor.RED + "The world: " + worldName + " could not be loaded because its generator was invalid!");
-            }
+        }
+        catch(Exception ex)
+        {
+            FreedomOpModRemastered.plugin.handleException(ex);
         }
     }
 
     public static void loadWorld(String worldName)
     {
-        if(!FreedomOpModRemastered.configs.getWorlds().getConfig().contains(worldName))
+        try
         {
-            return;
+            if(((String) FOPMR_DatabaseInterface.getFromTable("NAME", worldName, "GENERATOR", "WORLDS")).equalsIgnoreCase("flat"))
+            {
+                createNewWorld(worldName, new FOPMR_FlatGenerator(), FOPMR_Rank.getFromName(((String) FOPMR_DatabaseInterface.getFromTable("NAME", worldName, "RANK", "WORLDS"))));
+            }
+            else if(((String) FOPMR_DatabaseInterface.getFromTable("NAME", worldName, "GENERATOR", "WORLDS")).equalsIgnoreCase("default"))
+            {
+                createNewWorld(worldName, FOPMR_Rank.getFromName(((String) FOPMR_DatabaseInterface.getFromTable("NAME", worldName, "RANK", "WORLDS"))));
+            }
+            else if(((String) FOPMR_DatabaseInterface.getFromTable("NAME", worldName, "GENERATOR", "WORLDS")).equalsIgnoreCase("empty"))
+            {
+                createNewWorld(worldName, new FOPMR_EmptyGenerator(), FOPMR_Rank.getFromName(((String) FOPMR_DatabaseInterface.getFromTable("NAME", worldName, "RANK", "WORLDS"))));
+            }
+            else if(((String) FOPMR_DatabaseInterface.getFromTable("NAME", worldName, "GENERATOR", "WORLDS")).equalsIgnoreCase("rollinghills"))
+            {
+                createNewWorld(worldName, new FOPMR_RollinghillsGenerator(), FOPMR_Rank.getFromName(((String) FOPMR_DatabaseInterface.getFromTable("NAME", worldName, "RANK", "WORLDS"))));
+            }
+            else
+            {
+                Bukkit.broadcastMessage(ChatColor.RED + "The world: " + worldName + " could not be loaded because its generator was invalid!");
+            }
         }
-        if(FreedomOpModRemastered.configs.getWorlds().getConfig().getString(worldName + ".generator").equalsIgnoreCase("flat"))
+        catch(Exception ex)
         {
-            createNewWorld(worldName, new FOPMR_FlatGenerator(), FOPMR_Rank.getFromName(FreedomOpModRemastered.configs.getWorlds().getConfig().getString(worldName + ".rank")));
+            FreedomOpModRemastered.plugin.handleException(ex);
         }
-        else if(FreedomOpModRemastered.configs.getWorlds().getConfig().getString(worldName + ".generator").equalsIgnoreCase("default"))
-        {
-            createNewWorld(worldName, FOPMR_Rank.getFromName(FreedomOpModRemastered.configs.getWorlds().getConfig().getString(worldName + ".rank")));
-        }
-        else if(FreedomOpModRemastered.configs.getWorlds().getConfig().getString(worldName + ".generator").equalsIgnoreCase("empty"))
-        {
-            createNewWorld(worldName, new FOPMR_EmptyGenerator(), FOPMR_Rank.getFromName(FreedomOpModRemastered.configs.getWorlds().getConfig().getString(worldName + ".rank")));
-        }
-        else if(FreedomOpModRemastered.configs.getWorlds().getConfig().getString(worldName + ".generator").equalsIgnoreCase("rollinghills"))
-        {
-            createNewWorld(worldName, new FOPMR_RollinghillsGenerator(), FOPMR_Rank.getFromName(FreedomOpModRemastered.configs.getWorlds().getConfig().getString(worldName + ".rank")));
-        }
-        else
-        {
-            Bukkit.broadcastMessage(ChatColor.RED + "The world: " + worldName + " could not be loaded because its generator was invalid!");
-        }
-
     }
 
     public static void unloadWorlds()
@@ -196,20 +218,9 @@ public class FOPMR_WorldManager
     public static boolean canAccess(String name, Player player)
     {
         World world = Bukkit.getWorld(name);
-        
         if(world == null)
         {
             return false;
-        }
-        if(("adminworld".equals(name)))
-        {
-            if(FOPMR_Rank.isAdmin(player)) {
-                return true;
-            }
-            else {
-                return false;
-            }
-            
         }
         if(!worlds.containsKey(world))
         {
@@ -228,7 +239,6 @@ public class FOPMR_WorldManager
 
     public static void sendToWorld(String name, Player player)
     {
-        
         World world = Bukkit.getWorld(name);
         if(world == null)
         {
@@ -253,15 +263,12 @@ public class FOPMR_WorldManager
     public static void wipeFlatlands()
     {
         final World flatlands = Bukkit.getWorld("flatlands");
-        
         for(Player player : flatlands.getPlayers())
         {
             player.setOp(false);
             player.setWhitelisted(false);
-            Bukkit.getServer().dispatchCommand(player, "world world");
         }
         Bukkit.getServer().setWhitelist(true);
-       
         CUtils_Methods.unloadWorld(flatlands);
         new BukkitRunnable()
         {
@@ -270,10 +277,8 @@ public class FOPMR_WorldManager
             {
                 CUtils_Methods.deleteWorld(flatlands.getWorldFolder());
                 Bukkit.getServer().setWhitelist(false);
-                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "opall");
             }
         }.runTaskLater(FreedomOpModRemastered.plugin, 20L * 5L);
         createNewWorld("flatlands", new FOPMR_FlatGenerator(), Rank.OP);
-        
     }
 }

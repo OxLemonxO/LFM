@@ -30,7 +30,7 @@ public class Command_protect
             if(args[0].equalsIgnoreCase("list"))
             {
                 sender.sendMessage(ChatColor.GOLD + "List of currently active protected areas: ");
-                for(FOPMR_ProtectedArea area : FOPMR_ProtectedAreas.getFromConfig())
+                for(FOPMR_ProtectedArea area : FOPMR_ProtectedAreas.getFromDatabase())
                 {
                     ChatColor colour = ChatColor.RED;
                     if(area.canAccess(player))

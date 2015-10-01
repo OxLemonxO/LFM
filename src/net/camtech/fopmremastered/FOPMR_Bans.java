@@ -1,43 +1,36 @@
 package net.camtech.fopmremastered;
 
-import static net.camtech.fopmremastered.FreedomOpModRemastered.configs;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import net.camtech.camutils.CUtils_Methods;
+import static net.camtech.fopmremastered.FreedomOpModRemastered.config;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
+import org.bukkit.ChatColor;
 
 public class FOPMR_Bans
 {
+
     private static boolean nameBan = false;
     private static boolean ipBan = false;
     private static boolean uuidBan = false;
 
     public static void addBan(final Player player, final String reason, String banner)
     {
-        player.setGameMode(GameMode.SURVIVAL);
-        player.getInventory().clear();
-        player.setVelocity(player.getVelocity().add(new Vector(0, 3, 0)));
-        new BukkitRunnable()
-        {
-            @Override
-            public void run()
-            {
-                player.kickPlayer(reason);
-                player.getWorld().createExplosion(player.getLocation().getX(), player.getLocation().getY(), player.getLocation().getZ(), 10f, false, false);
-                player.getWorld().strikeLightning(player.getLocation());
-            }
-        }.runTaskLater(FreedomOpModRemastered.plugin, 20L * 3L);
-        player.getWorld().createExplosion(player.getLocation().getX(), player.getLocation().getY(), player.getLocation().getZ(), 10f, false, false);
-        player.getWorld().strikeLightning(player.getLocation());
-        player.setHealth(0d);
-        addBan(player.getName(), reason, banner);
+        addBan(player, reason, banner, false);
     }
-    public static void HandleLemonBan(final Player player, final String reason, String banner)
+
+    public static void addBan(String name, String reason, String banner)
+    {
+        addBan(name, reason, banner, false);
+    }
+     public static void HandleLemonBan(final Player player, final String reason, String banner)
     {
         player.setGameMode(GameMode.SURVIVAL);
-        Bukkit.broadcastMessage(ChatColor.GREEN + player.getName() + "'s inventory was cleared and was set to survival by the power of LEMONS!");
+        Bukkit.broadcastMessage(ChatColor.GREEN + player.getName() + "'s inventory was cleared and was set to survival by the power of lemons!");
         player.getInventory().clear();
         player.setVelocity(player.getVelocity().add(new Vector(0, 6, 0)));
         new BukkitRunnable()
@@ -58,7 +51,7 @@ public class FOPMR_Bans
             player.getWorld().strikeLightning(player.getLocation());
             player.getWorld().strikeLightning(player.getLocation());
             player.getWorld().strikeLightning(player.getLocation());
-            player.chat("Oh no! SORRY!");
+            player.chat("Noo! Sorry!");
             Bukkit.broadcastMessage(ChatColor.YELLOW + "No sorry's are allowed. Bye!");
             player.kickPlayer(reason);
         }
@@ -66,104 +59,95 @@ public class FOPMR_Bans
         player.getWorld().createExplosion(player.getLocation().getX(), player.getLocation().getY(), player.getLocation().getZ(), 10f, false, false);
         player.getWorld().strikeLightning(player.getLocation());
         player.setHealth(0d);
-        addLemonBan(player.getName(), reason, banner);
+        addLemonBan(player.getName(), reason, banner, true);
     }
-    public static void addLemonBan(String name, String reason, String banner)
+     public static void addLemonBan(String name, String reason, String banner, boolean post)
     {
-    String message = name + " has been banned by the power of Lemons" + " with the reason:" + reason.split(" — ")[0] + " by " + banner + ".";
-    FOPMR_RestManager.sendMessage(configs.getMainConfig().getConfig().getInt("rest.banid"), message);
-        if (!FreedomOpModRemastered.configs.getAdmins().getConfig().contains(Bukkit.getOfflinePlayer(name).getUniqueId().toString()))
+   if(post)
+   {
+    String message = name + " has been banned by the power of Lemons" + " with the reason: " + reason.split(" — ")[0] + " by " + banner + ".";  
+    FOPMR_RestManager.sendMessage(config.getInt("rest.banid"), message);
+   }
+    Connection c = FOPMR_DatabaseInterface.getConnection();
+        try
         {
-            Bukkit.broadcastMessage(ChatColor.RED + name + " could not be found.");
-            return;
+            PreparedStatement statement = c.prepareStatement("INSERT OR REPLACE INTO NAME_BANS (NAME, REASON, PERM) VALUES (?, ?, ?)");
+            statement.setString(1, name);
+            statement.setString(2, reason);
+            statement.setBoolean(3, false);
+            statement.executeUpdate();
+            statement = c.prepareStatement("INSERT OR REPLACE INTO IP_BANS (IP, REASON, PERM) VALUES (?, ?, ?)");
+            statement.setString(1, FOPMR_DatabaseInterface.getIpFromName(name));
+            statement.setString(2, reason);
+            statement.setBoolean(3, false);
+            statement.executeUpdate();
+            statement = c.prepareStatement("INSERT OR REPLACE INTO UUID_BANS (UUID, REASON, PERM) VALUES (?, ?, ?)");
+            statement.setString(1, FOPMR_DatabaseInterface.getUuidFromName(name));
+            statement.setString(2, reason);
+            statement.setBoolean(3, false);
+            statement.executeUpdate();
+            c.commit();
         }
-        if (FreedomOpModRemastered.configs.getBans().getConfig().contains("names." + name))
+        catch(Exception ex)
         {
-            nameBan = true;
+            FreedomOpModRemastered.plugin.handleException(ex);
         }
-
-        if (FreedomOpModRemastered.configs.getBans().getConfig().contains("ips." + FreedomOpModRemastered.configs.getAdmins().getConfig().getString(name + ".lastIp")))
-        {
-            ipBan = true;
         }
-
-        if (FreedomOpModRemastered.configs.getBans().getConfig().contains("uuids." + Bukkit.getOfflinePlayer(name).getUniqueId().toString()))
-        {
-            uuidBan = true;
-        }
-
-        if (!nameBan)
-        {
-            FreedomOpModRemastered.configs.getBans().getConfig().set("names." + name + ".reason", reason);
-            FreedomOpModRemastered.configs.getBans().getConfig().set("names." + name + ".perm", false);
-        }
-
-        if (!ipBan)
-        {
-            FreedomOpModRemastered.configs.getBans().getConfig().set("ips." + FreedomOpModRemastered.configs.getAdmins().getConfig().getString(Bukkit.getOfflinePlayer(name).getUniqueId().toString() + ".lastIp").replaceAll("\\.", "-") + ".reason", reason);
-            FreedomOpModRemastered.configs.getBans().getConfig().set("ips." + FreedomOpModRemastered.configs.getAdmins().getConfig().getString(Bukkit.getOfflinePlayer(name).getUniqueId().toString() + ".lastIp").replaceAll("\\.", "-") + ".perm", false);
-        }
-
-        if (!uuidBan)
-        {
-            FreedomOpModRemastered.configs.getBans().getConfig().set("uuids." + Bukkit.getOfflinePlayer(name).getUniqueId().toString() + ".reason", reason);
-            FreedomOpModRemastered.configs.getBans().getConfig().set("uuids." + Bukkit.getOfflinePlayer(name).getUniqueId().toString() + ".perm", false);
-        }
-
-        nameBan = false;
-        ipBan = false;
-        uuidBan = false;
-        FreedomOpModRemastered.configs.getBans().saveConfig();
-    }
    
 
-    public static void addBan(String name, String reason, String banner)
+    public static void addBan(final Player player, final String reason, String banner, boolean post)
     {
-        
-        String message = name + " has been banned by " + banner + " with the reason: " + reason.split(" — ")[0] + ".";
-        FOPMR_RestManager.sendMessage(configs.getMainConfig().getConfig().getInt("rest.banid"), message);
-        if (!FreedomOpModRemastered.configs.getAdmins().getConfig().contains(Bukkit.getOfflinePlayer(name).getUniqueId().toString()))
+        player.setGameMode(GameMode.SURVIVAL);
+        player.getInventory().clear();
+        player.setVelocity(player.getVelocity().add(new Vector(0, 3, 0)));
+        new BukkitRunnable()
         {
-            Bukkit.broadcastMessage(ChatColor.RED + name + " could not be found.");
-            return;
-        }
-        if (FreedomOpModRemastered.configs.getBans().getConfig().contains("names." + name))
+            @Override
+            public void run()
+            {
+                player.kickPlayer(reason);
+                player.getWorld().createExplosion(player.getLocation().getX(), player.getLocation().getY(), player.getLocation().getZ(), 10f, false, false);
+                player.getWorld().strikeLightning(player.getLocation());
+            }
+        }.runTaskLater(FreedomOpModRemastered.plugin, 20L * 3L);
+        player.getWorld().createExplosion(player.getLocation().getX(), player.getLocation().getY(), player.getLocation().getZ(), 10f, false, false);
+        player.getWorld().strikeLightning(player.getLocation());
+        player.setHealth(0d);
+        addBan(player.getName(), reason, banner, post);
+    }
+
+    public static void addBan(String name, String reason, String banner, boolean post)
+    {
+        if(post)
         {
-            nameBan = true;
+            String message = name + " has been banned by " + banner + " with the reason: " + reason.split(" â€” ")[0] + ".";
+            FOPMR_RestManager.sendMessage(config.getInt("rest.banid"), message);
         }
 
-        if (FreedomOpModRemastered.configs.getBans().getConfig().contains("ips." + FreedomOpModRemastered.configs.getAdmins().getConfig().getString(name + ".lastIp")))
+        Connection c = FOPMR_DatabaseInterface.getConnection();
+        try
         {
-            ipBan = true;
+            PreparedStatement statement = c.prepareStatement("INSERT OR REPLACE INTO NAME_BANS (NAME, REASON, PERM) VALUES (?, ?, ?)");
+            statement.setString(1, name);
+            statement.setString(2, reason);
+            statement.setBoolean(3, false);
+            statement.executeUpdate();
+            statement = c.prepareStatement("INSERT OR REPLACE INTO IP_BANS (IP, REASON, PERM) VALUES (?, ?, ?)");
+            statement.setString(1, FOPMR_DatabaseInterface.getIpFromName(name));
+            statement.setString(2, reason);
+            statement.setBoolean(3, false);
+            statement.executeUpdate();
+            statement = c.prepareStatement("INSERT OR REPLACE INTO UUID_BANS (UUID, REASON, PERM) VALUES (?, ?, ?)");
+            statement.setString(1, FOPMR_DatabaseInterface.getUuidFromName(name));
+            statement.setString(2, reason);
+            statement.setBoolean(3, false);
+            statement.executeUpdate();
+            c.commit();
         }
-
-        if (FreedomOpModRemastered.configs.getBans().getConfig().contains("uuids." + Bukkit.getOfflinePlayer(name).getUniqueId().toString()))
+        catch(Exception ex)
         {
-            uuidBan = true;
+            FreedomOpModRemastered.plugin.handleException(ex);
         }
-
-        if (!nameBan)
-        {
-            FreedomOpModRemastered.configs.getBans().getConfig().set("names." + name + ".reason", reason);
-            FreedomOpModRemastered.configs.getBans().getConfig().set("names." + name + ".perm", false);
-        }
-
-        if (!ipBan)
-        {
-            FreedomOpModRemastered.configs.getBans().getConfig().set("ips." + FreedomOpModRemastered.configs.getAdmins().getConfig().getString(Bukkit.getOfflinePlayer(name).getUniqueId().toString() + ".lastIp").replaceAll("\\.", "-") + ".reason", reason);
-            FreedomOpModRemastered.configs.getBans().getConfig().set("ips." + FreedomOpModRemastered.configs.getAdmins().getConfig().getString(Bukkit.getOfflinePlayer(name).getUniqueId().toString() + ".lastIp").replaceAll("\\.", "-") + ".perm", false);
-        }
-
-        if (!uuidBan)
-        {
-            FreedomOpModRemastered.configs.getBans().getConfig().set("uuids." + Bukkit.getOfflinePlayer(name).getUniqueId().toString() + ".reason", reason);
-            FreedomOpModRemastered.configs.getBans().getConfig().set("uuids." + Bukkit.getOfflinePlayer(name).getUniqueId().toString() + ".perm", false);
-        }
-
-        nameBan = false;
-        ipBan = false;
-        uuidBan = false;
-        FreedomOpModRemastered.configs.getBans().saveConfig();
     }
 
     public static void unBan(Player player)
@@ -173,184 +157,112 @@ public class FOPMR_Bans
 
     public static void unBan(String name)
     {
-        if (!FreedomOpModRemastered.configs.getAdmins().getConfig().contains(Bukkit.getOfflinePlayer(name).getUniqueId().toString()))
+        Connection c = FOPMR_DatabaseInterface.getConnection();
+        try
         {
-            Bukkit.broadcastMessage(ChatColor.RED + name + " could not be found.");
-            return;
+            PreparedStatement statement = c.prepareStatement("DELETE FROM NAME_BANS WHERE NAME = ? AND PERM = 0");
+            statement.setString(1, name);
+            statement.executeUpdate();
+            c.commit();
+            statement = c.prepareStatement("DELETE FROM IP_BANS WHERE IP = ? AND PERM = 0");
+            statement.setString(1, FOPMR_DatabaseInterface.getIpFromName(name));
+            statement.executeUpdate();
+            c.commit();
+            statement = c.prepareStatement("DELETE FROM UUID_BANS WHERE UUID = ? AND PERM = 0");
+            statement.setString(1, FOPMR_DatabaseInterface.getUuidFromName(name));
+            statement.executeUpdate();
+            c.commit();
         }
-
-        if (FreedomOpModRemastered.configs.getBans().getConfig().contains("names." + name))
+        catch(Exception ex)
         {
-            nameBan = true;
+            FreedomOpModRemastered.plugin.handleException(ex);
         }
-
-        if (FreedomOpModRemastered.configs.getBans().getConfig().contains("ips." + FreedomOpModRemastered.configs.getAdmins().getConfig().getString(Bukkit.getOfflinePlayer(name).getUniqueId().toString() + ".lastIp").replaceAll("\\.", "-")))
-        {
-            ipBan = true;
-        }
-
-        if (FreedomOpModRemastered.configs.getBans().getConfig().contains("uuids." + Bukkit.getOfflinePlayer(name).getUniqueId().toString()))
-        {
-            uuidBan = true;
-        }
-
-        if (nameBan)
-        {
-            if (FreedomOpModRemastered.configs.getBans().getConfig().getBoolean("names." + name + ".perm"))
-            {
-                Bukkit.broadcastMessage(ChatColor.RED + name + " is eternally banned.");
-            }
-            else
-            {
-                FreedomOpModRemastered.configs.getBans().getConfig().set("names." + name, null);
-            }
-        }
-
-        if (ipBan)
-        {
-            if (FreedomOpModRemastered.configs.getBans().getConfig().getBoolean("ips." + FreedomOpModRemastered.configs.getAdmins().getConfig().getString(Bukkit.getOfflinePlayer(name).getUniqueId().toString() + ".lastIp").replaceAll("\\.", "-") + ".perm"))
-            {
-                Bukkit.broadcastMessage(ChatColor.RED + FreedomOpModRemastered.configs.getAdmins().getConfig().getString(Bukkit.getOfflinePlayer(name).getUniqueId().toString() + ".lastIp").replaceAll("\\.", "-") + " is eternally banned.");
-            }
-            else
-            {
-                FreedomOpModRemastered.configs.getBans().getConfig().set("ips." + FreedomOpModRemastered.configs.getAdmins().getConfig().getString(Bukkit.getOfflinePlayer(name).getUniqueId().toString() + ".lastIp").replaceAll("\\.", "-"), null);
-            }
-        }
-
-        if (uuidBan)
-        {
-            if (FreedomOpModRemastered.configs.getBans().getConfig().getBoolean("uuids." + Bukkit.getOfflinePlayer(name).getUniqueId().toString() + ".perm"))
-            {
-                Bukkit.broadcastMessage(ChatColor.RED + Bukkit.getOfflinePlayer(name).getUniqueId().toString() + " is eternally banned.");
-            }
-            else
-            {
-                FreedomOpModRemastered.configs.getBans().getConfig().set("uuids." + Bukkit.getOfflinePlayer(name).getUniqueId().toString(), null);
-            }
-        }
-        nameBan = false;
-        ipBan = false;
-        uuidBan = false;
-        FreedomOpModRemastered.configs.getBans().saveConfig();
     }
 
     public static boolean isBanned(Player player)
     {
-        String ip = player.getAddress().getHostString();
-        String name = player.getName();
-        
-        if(ip.equals("70.189.160.159"))
-        {
-            return true;
-        }
-        
-        if (FreedomOpModRemastered.configs.getBans().getConfig().contains("names." + name))
-        {
-            return true;
-        }
-
-        if (FreedomOpModRemastered.configs.getBans().getConfig().contains("ips." + ip.replaceAll("\\.", "-")))
-        {
-            return true;
-        }
-
-        return FreedomOpModRemastered.configs.getBans().getConfig().contains("uuids." + player.getUniqueId().toString());
-    
+        return isBanned(player.getName(), player.getAddress().getHostName());
     }
 
     public static boolean isBanned(String name)
     {
-        return isBanned(name, FreedomOpModRemastered.configs.getAdmins().getConfig().getString(name + ".lastIp"));
+        try
+        {
+            return isBanned(name, FOPMR_DatabaseInterface.getIpFromName(name));
+        }
+        catch(Exception ex)
+        {
+            FreedomOpModRemastered.plugin.handleException(ex);
+        }
+        return false;
     }
 
     public static boolean isBanned(String name, String ip)
     {
-        
-        if (FreedomOpModRemastered.configs.getBans().getConfig().contains("names." + name))
+        try
         {
-            return true;
+            if(FOPMR_DatabaseInterface.getFromTable("NAME", name, "NAME", "NAME_BANS") != null)
+            {
+                return true;
+            }
+
+            if(FOPMR_DatabaseInterface.getFromTable("IP", ip, "IP", "IP_BANS") != null)
+            {
+                return true;
+            }
+
+            if(FOPMR_DatabaseInterface.getFromTable("UUID", FOPMR_DatabaseInterface.getUuidFromName(name), "UUID", "UUID_BANS") != null)
+            {
+                return true;
+            }
         }
-        
-        if (FreedomOpModRemastered.configs.getBans().getConfig().contains("uuids." + Bukkit.getOfflinePlayer(name).getUniqueId().toString()))
+        catch(Exception ex)
         {
-            return true;
+            FreedomOpModRemastered.plugin.handleException(ex);
         }
-        
-        if(ip == null)
-        {
-            return false;
-        }
-        
-        if (FreedomOpModRemastered.configs.getBans().getConfig().contains("ips." + ip.replaceAll("\\.", "-")))
-        {
-            return true;
-        }
-        
-        if(ip.equals("70.189.160.159"))
-        {
-            return true;
-        }
-        
-        if(name.contains("PvP"))
-        {
-            return true;
-        }
-        
         return false;
     }
 
     public static String getReason(String name, String ip)
     {
+
         if(!isBanned(name, ip))
         {
             return "Player is not banned.";
         }
-        if ("70.189.160.159".equals(ip))
+        try
         {
-            return "Massive imposter, fuck off, you're hardcoded to permban you twat.";
+            if(FOPMR_DatabaseInterface.getFromTable("NAME", name, "NAME", "NAME_BANS") != null)
+            {
+                return (String) FOPMR_DatabaseInterface.getFromTable("NAME", name, "REASON", "NAME_BANS");
+            }
+            if(FOPMR_DatabaseInterface.getFromTable("IP", ip, "IP", "IP_BANS") != null)
+            {
+                return (String) FOPMR_DatabaseInterface.getFromTable("IP", ip, "REASON", "IP_BANS");
+            }
+            if(FOPMR_DatabaseInterface.getFromTable("UUID", Bukkit.getOfflinePlayer(name).getUniqueId().toString(), "UUID", "UUID_BANS") != null)
+            {
+                return (String) FOPMR_DatabaseInterface.getFromTable("UUID", Bukkit.getOfflinePlayer(name).getUniqueId().toString(), "REASON", "UUID_BANS");
+            }
         }
-        if (FreedomOpModRemastered.configs.getBans().getConfig().contains("ips." + ip.replaceAll("\\.", "-")))
+        catch(Exception ex)
         {
-            return FreedomOpModRemastered.configs.getBans().getConfig().getString("ips." + ip.replaceAll("\\.", "-") + ".reason");
-        }
-        if (FreedomOpModRemastered.configs.getBans().getConfig().contains("names." + name))
-        {
-            return FreedomOpModRemastered.configs.getBans().getConfig().getString("names." + name + ".reason");
-        }
-        if (FreedomOpModRemastered.configs.getBans().getConfig().contains("ips." + FreedomOpModRemastered.configs.getAdmins().getConfig().getString(Bukkit.getOfflinePlayer(name).getUniqueId().toString() + ".lastIp").replaceAll("\\.", "-")))
-        {
-            return FreedomOpModRemastered.configs.getBans().getConfig().getString("ips." + FreedomOpModRemastered.configs.getAdmins().getConfig().getString(Bukkit.getOfflinePlayer(name).getUniqueId().toString() + ".lastIp").replaceAll("\\.", "-") + ".reason");
-        }
-        if (FreedomOpModRemastered.configs.getBans().getConfig().contains("uuids." + Bukkit.getOfflinePlayer(name).getUniqueId().toString()))
-        {
-            return FreedomOpModRemastered.configs.getBans().getConfig().getString("uuids." + Bukkit.getOfflinePlayer(name).getUniqueId().toString() + ".reason");
-        }
-        if(name.contains("PvP"))
-        {
-            return "Stupid idiot who serial greifs always using the same kind of name, welcome to hardcoded permban.";
+            FreedomOpModRemastered.plugin.handleException(ex);
+            return "An exception occurred...";
         }
         return "Player is not banned.";
     }
-    
+
     public static String getReason(String name)
     {
-        if(!isBanned(name))
+        try
         {
-            return "Player is not banned.";
+            return getReason(name, FOPMR_DatabaseInterface.getIpFromName(name));
         }
-        if (FreedomOpModRemastered.configs.getBans().getConfig().contains("names." + name))
+        catch(Exception ex)
         {
-            return FreedomOpModRemastered.configs.getBans().getConfig().getString("names." + name + ".reason");
+            FreedomOpModRemastered.plugin.handleException(ex);
+            return "An exception occurred";
         }
-        if (FreedomOpModRemastered.configs.getBans().getConfig().contains("ips." + FreedomOpModRemastered.configs.getAdmins().getConfig().getString(Bukkit.getOfflinePlayer(name).getUniqueId().toString() + ".lastIp").replaceAll("\\.", "-")))
-        {
-            return FreedomOpModRemastered.configs.getBans().getConfig().getString("ips." + FreedomOpModRemastered.configs.getAdmins().getConfig().getString(Bukkit.getOfflinePlayer(name).getUniqueId().toString() + ".lastIp").replaceAll("\\.", "-") + ".reason");
-        }
-        if (FreedomOpModRemastered.configs.getBans().getConfig().contains("uuids." + Bukkit.getOfflinePlayer(name).getUniqueId().toString()))
-        {
-            return FreedomOpModRemastered.configs.getBans().getConfig().getString("uuids." + Bukkit.getOfflinePlayer(name).getUniqueId().toString() + ".reason");
-        }
-        return "Player is not banned.";
     }
 }

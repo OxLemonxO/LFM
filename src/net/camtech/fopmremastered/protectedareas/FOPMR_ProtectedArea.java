@@ -1,23 +1,27 @@
 package net.camtech.fopmremastered.protectedareas;
 
-
-
+import com.google.gson.Gson;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.util.ArrayList;
+import net.camtech.fopmremastered.FOPMR_DatabaseInterface;
 import net.camtech.fopmremastered.FOPMR_Rank;
 import net.camtech.fopmremastered.FOPMR_Rank.Rank;
+import net.camtech.fopmremastered.FreedomOpModRemastered;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 public class FOPMR_ProtectedArea
 {
+
     private final String owner;
     private final String name;
     private final ArrayList<String> allowed;
     private final Rank rank;
     private final Location loc;
     private final int range;
-    
+
     public FOPMR_ProtectedArea(String owner, String name, ArrayList<String> allowed, Rank rank, Location loc, int range)
     {
         this.owner = owner;
@@ -27,37 +31,37 @@ public class FOPMR_ProtectedArea
         this.loc = loc;
         this.range = range;
     }
-    
+
     public String getName()
     {
         return this.name;
     }
-    
+
     public String getOwner()
     {
         return this.owner;
     }
-    
+
     public Rank getRank()
     {
         return this.rank;
     }
-    
+
     public ArrayList<String> getAllowed()
     {
         return this.allowed;
     }
-    
+
     public Location getLocation()
     {
         return this.loc;
     }
-    
+
     public int getRange()
     {
         return this.range;
     }
-    
+
     public boolean canAccess(Player player)
     {
         if(isOwner(player))
@@ -70,7 +74,7 @@ public class FOPMR_ProtectedArea
         }
         return FOPMR_Rank.getRank(player).level > rank.level;
     }
-    
+
     public boolean addPlayer(Player sender, Player player)
     {
         if(!isOwner(sender) && getRank().level > FOPMR_Rank.getRank(sender).level)
@@ -81,34 +85,57 @@ public class FOPMR_ProtectedArea
         {
             return false;
         }
-        this.allowed.add(player.getName());
-        FOPMR_ProtectedAreas.areas.set(name + ".allowed", this.allowed);
-        FOPMR_ProtectedAreas.config.saveConfig();
-        player.sendMessage(ChatColor.GREEN + "You have been added to the protected area " + this.name + " by " + sender.getName() + ".");
-        return true;
-    }
-    
-    public boolean removePlayer(Player sender, Player player)
-    {
-        if((!isOwner(sender) || !this.allowed.contains(player.getName())) && getRank().level > FOPMR_Rank.getRank(sender).level)
+        try
         {
-            return false;
-        }
-        if(this.allowed.contains(player.getName()))
-        {
-            this.allowed.remove(player.getName());
-            FOPMR_ProtectedAreas.areas.set(name + ".allowed", this.allowed);
-            FOPMR_ProtectedAreas.config.saveConfig();
+            this.allowed.add(player.getName());
+            Connection c = FOPMR_DatabaseInterface.getConnection();
+            PreparedStatement statement = c.prepareStatement("UPDATE OR IGNORE AREAS SET ALLOWED = ? WHERE NAME = ?");
+            statement.setString(1, (new Gson()).toJson(this.allowed));
+            statement.setString(2, this.name);
+            statement.executeUpdate();
+            c.commit();
+            player.sendMessage(ChatColor.GREEN + "You have been added to the protected area " + this.name + " by " + sender.getName() + ".");
             return true;
+        }
+        catch(Exception ex)
+        {
+            FreedomOpModRemastered.plugin.handleException(ex);
         }
         return false;
     }
-    
+
+    public boolean removePlayer(Player sender, Player player)
+    {
+        try
+        {
+            if((!isOwner(sender) || !this.allowed.contains(player.getName())) && getRank().level > FOPMR_Rank.getRank(sender).level)
+            {
+                return false;
+            }
+            if(this.allowed.contains(player.getName()))
+            {
+                this.allowed.remove(player.getName());
+                Connection c = FOPMR_DatabaseInterface.getConnection();
+                PreparedStatement statement = c.prepareStatement("UPDATE OR IGNORE AREAS SET ALLOWED = ? WHERE NAME = ?");
+                statement.setString(1, (new Gson()).toJson(this.allowed));
+                statement.setString(2, this.name);
+                statement.executeUpdate();
+                c.commit();
+                return true;
+            }
+        }
+        catch(Exception ex)
+        {
+            FreedomOpModRemastered.plugin.handleException(ex);
+        }
+        return false;
+    }
+
     public boolean isOwner(Player player)
     {
         return (this.owner == null ? player.getName() == null : this.owner.equals(player.getName()));
     }
-    
+
     public boolean isInRange(Location location)
     {
         if(this.loc.getWorld() == location.getWorld())

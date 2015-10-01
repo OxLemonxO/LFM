@@ -1,5 +1,9 @@
 package net.camtech.fopmremastered.commands;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import net.camtech.fopmremastered.FOPMR_DatabaseInterface;
 import static net.camtech.fopmremastered.FOPMR_Rank.isAdmin;
 import net.camtech.fopmremastered.FreedomOpModRemastered;
 import org.apache.commons.lang.ArrayUtils;
@@ -12,63 +16,74 @@ import org.bukkit.command.CommandSender;
 @CommandParameters(name = "report", usage = "/report ([player] [reason]) | [view] | ([delete] [player])", description = "Manage reports.")
 public class Command_report
 {
+
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args)
     {
         if(args.length == 0)
         {
             return false;
         }
-        if(args.length == 1)
+        try
         {
-            if(args[0].equalsIgnoreCase("view"))
+            if(args.length == 1)
             {
-                if(!isAdmin(sender))
+                if(args[0].equalsIgnoreCase("view"))
                 {
-                    sender.sendMessage(ChatColor.RED + "You must be an admin to view reports.");
-                    return true;
-                }
-                for(String reported : FreedomOpModRemastered.configs.getReports().getConfig().getKeys(false))
-                {
-                    sender.sendMessage(ChatColor.RED + reported + ChatColor.GOLD + " was reported by " + ChatColor.GREEN + FreedomOpModRemastered.configs.getReports().getConfig().getString(reported + ".reporter") + " for " + ChatColor.AQUA + FreedomOpModRemastered.configs.getReports().getConfig().getString(reported + ".reason"));
-                }
-                return true;
-            }
-            return false;
-        }
-        if(args.length == 2)
-        {
-            if(args[0].equalsIgnoreCase("delete"))
-            {
-                if(!isAdmin(sender))
-                {
-                    sender.sendMessage(ChatColor.RED + "You must be an admin to delete reports.");
-                    return true;
-                }
-                String name = args[1];
-                if(Bukkit.getPlayer(name) != null)
-                {
-                    name = Bukkit.getPlayer(name).getName();
-                }
-                for(String reported : FreedomOpModRemastered.configs.getReports().getConfig().getKeys(false))
-                {
-                    if(reported.equalsIgnoreCase(name))
+                    if(!isAdmin(sender))
                     {
-                        FreedomOpModRemastered.configs.getReports().getConfig().set(name, null);
+                        sender.sendMessage(ChatColor.RED + "You must be an admin to view reports.");
+                        return true;
                     }
+                    ResultSet set = FOPMR_DatabaseInterface.getAllResults(null, null, "REPORTS");
+                    while(set.next())
+                    {
+                        sender.sendMessage(ChatColor.GREEN + (String) set.getObject("REPORTED") + ChatColor.GOLD + " was reported by " + ChatColor.GREEN + (String) set.getObject("REPORTER") + ChatColor.GOLD + " for the reason: " + ChatColor.GREEN + set.getObject("REASON") + ChatColor.GOLD + ".");
+                    }
+                    return true;
                 }
-                return true;
+                return false;
             }
+            if(args.length == 2)
+            {
+                if(args[0].equalsIgnoreCase("delete"))
+                {
+                    if(!isAdmin(sender))
+                    {
+                        sender.sendMessage(ChatColor.RED + "You must be an admin to delete reports.");
+                        return true;
+                    }
+                    String name = args[1];
+                    if(Bukkit.getPlayer(name) != null)
+                    {
+                        name = Bukkit.getPlayer(name).getName();
+                    }
+                    Connection c = FOPMR_DatabaseInterface.getConnection();
+                    PreparedStatement statement = c.prepareStatement("DELETE FROM REPORTS WHERE REPORTED = ?");
+                    statement.setString(1, name);
+                    statement.executeUpdate();
+                    c.commit();
+                    return true;
+                }
+            }
+            String reason = StringUtils.join(ArrayUtils.subarray(args, 1, args.length), " ");
+            String name = args[0];
+            if(Bukkit.getPlayer(name) != null)
+            {
+                name = Bukkit.getPlayer(name).getName();
+            }
+            sender.sendMessage(ChatColor.RED + "You have reported " + name + " for \"" + reason + "\"");
+            Connection c = FOPMR_DatabaseInterface.getConnection();
+            PreparedStatement statement = c.prepareStatement("INSERT INTO REPORTS (REPORTED, REPORTER, REASON) VALUES (?, ?, ?)");
+            statement.setString(1, name);
+            statement.setString(2, sender.getName());
+            statement.setString(3, reason);
+            statement.executeUpdate();
+            c.commit();
         }
-        String reason = StringUtils.join(ArrayUtils.subarray(args, 1, args.length), " ");
-        String name = args[0];
-        if(Bukkit.getPlayer(name) != null)
+        catch(Exception ex)
         {
-            name = Bukkit.getPlayer(name).getName();
+            FreedomOpModRemastered.plugin.handleException(ex);
         }
-        sender.sendMessage(ChatColor.RED + "You have reported " + name + " for \"" + reason + "\"");
-        FreedomOpModRemastered.configs.getReports().getConfig().set(name + ".reporter", sender.getName());
-        FreedomOpModRemastered.configs.getReports().getConfig().set(name + ".reason", reason);
-        FreedomOpModRemastered.configs.getReports().saveConfig();
         return true;
     }
 }

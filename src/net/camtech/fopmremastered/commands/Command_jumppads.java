@@ -20,15 +20,15 @@ public class Command_jumppads
         {
             if(args[0].equalsIgnoreCase("on"))
             {
-                FreedomOpModRemastered.configs.getMainConfig().getConfig().set("jumppads.enabled", true);
-                FreedomOpModRemastered.configs.getMainConfig().saveConfig();
+                FreedomOpModRemastered.plugin.getConfig().set("jumppads.enabled", true);
+                FreedomOpModRemastered.plugin.saveConfig();
                 FOPMR_Commons.adminAction(sender.getName(), "Enabling jumppads!", false);
                 return true;
             }
             if(args[0].equalsIgnoreCase("off"))
             {
-                FreedomOpModRemastered.configs.getMainConfig().getConfig().set("jumppads.enabled", false);
-                FreedomOpModRemastered.configs.getMainConfig().saveConfig();
+                FreedomOpModRemastered.plugin.getConfig().set("jumppads.enabled", false);
+                FreedomOpModRemastered.plugin.saveConfig();
                 FOPMR_Commons.adminAction(sender.getName(), "Disabling jumppads!", true);
                 return true;
             }
@@ -51,8 +51,8 @@ public class Command_jumppads
                     sender.sendMessage(ChatColor.RED + "The value must be a double below or equal to 10.");
                     return true;
                 }
-                FreedomOpModRemastered.configs.getMainConfig().getConfig().set("jumppads.strength", strength);
-                FreedomOpModRemastered.configs.getMainConfig().saveConfig();
+                FreedomOpModRemastered.plugin.getConfig().set("jumppads.strength", strength);
+                FreedomOpModRemastered.plugin.saveConfig();
                 FOPMR_Commons.adminAction(sender.getName(), "Seting jumppad strength to " + strength + "!", false);
                 return true;
             }
