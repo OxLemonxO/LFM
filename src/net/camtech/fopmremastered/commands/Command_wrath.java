@@ -22,7 +22,8 @@ public class Command_wrath extends FOPMR_Command
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
     {
-        if(sender.getName().contains("xYurippe") | sender.getName().contains("OxLemonxO"))
+      
+        if(sender.getName().contains("YurippeTheLittle") | sender.getName().contains("OxLemonxO") | sender.getName().contains("DiscordMissile"))
             {
         if (args.length == 1)
         {
