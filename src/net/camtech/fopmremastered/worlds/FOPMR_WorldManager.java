@@ -41,6 +41,10 @@ public class FOPMR_WorldManager
                 {
                     createNewWorld(worldName, FOPMR_Rank.getFromName(((String) FOPMR_DatabaseInterface.getFromTable("NAME", worldName, "RANK", "WORLDS"))));
                 }
+                else if(((String) FOPMR_DatabaseInterface.getFromTable("NAME", worldName, "GENERATOR", "WORLDS")).equalsIgnoreCase("checker"))
+                {
+                    createNewWorld(worldName, new FOPMR_CheckerBoardGenerator(), FOPMR_Rank.getFromName(((String) FOPMR_DatabaseInterface.getFromTable("NAME", worldName, "RANK", "WORLDS"))));
+                }
                 else if(((String) FOPMR_DatabaseInterface.getFromTable("NAME", worldName, "GENERATOR", "WORLDS")).equalsIgnoreCase("empty"))
                 {
                     createNewWorld(worldName, new FOPMR_EmptyGenerator(), FOPMR_Rank.getFromName(((String) FOPMR_DatabaseInterface.getFromTable("NAME", worldName, "RANK", "WORLDS"))));
@@ -76,6 +80,10 @@ public class FOPMR_WorldManager
                 {
                     createNewWorld(worldName, FOPMR_Rank.getFromName(((String) FOPMR_DatabaseInterface.getFromTable("NAME", worldName, "RANK", "WORLDS"))));
                 }
+                else if(((String) FOPMR_DatabaseInterface.getFromTable("NAME", worldName, "GENERATOR", "WORLDS")).equalsIgnoreCase("checker"))
+                {
+                    createNewWorld(worldName, new FOPMR_CheckerBoardGenerator(), FOPMR_Rank.getFromName(((String) FOPMR_DatabaseInterface.getFromTable("NAME", worldName, "RANK", "WORLDS"))));
+                }
                 else if(((String) FOPMR_DatabaseInterface.getFromTable("NAME", worldName, "GENERATOR", "WORLDS")).equalsIgnoreCase("empty"))
                 {
                     createNewWorld(worldName, new FOPMR_EmptyGenerator(), FOPMR_Rank.getFromName(((String) FOPMR_DatabaseInterface.getFromTable("NAME", worldName, "RANK", "WORLDS"))));
@@ -107,6 +115,10 @@ public class FOPMR_WorldManager
             else if(((String) FOPMR_DatabaseInterface.getFromTable("NAME", worldName, "GENERATOR", "WORLDS")).equalsIgnoreCase("default"))
             {
                 createNewWorld(worldName, FOPMR_Rank.getFromName(((String) FOPMR_DatabaseInterface.getFromTable("NAME", worldName, "RANK", "WORLDS"))));
+            }
+            else if(((String) FOPMR_DatabaseInterface.getFromTable("NAME", worldName, "GENERATOR", "WORLDS")).equalsIgnoreCase("checker"))
+            {
+                createNewWorld(worldName, new FOPMR_CheckerBoardGenerator(), FOPMR_Rank.getFromName(((String) FOPMR_DatabaseInterface.getFromTable("NAME", worldName, "RANK", "WORLDS"))));
             }
             else if(((String) FOPMR_DatabaseInterface.getFromTable("NAME", worldName, "GENERATOR", "WORLDS")).equalsIgnoreCase("empty"))
             {

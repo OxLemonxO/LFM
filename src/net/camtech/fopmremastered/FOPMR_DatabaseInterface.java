@@ -8,58 +8,49 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.bukkit.entity.Player;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 
-public class FOPMR_DatabaseInterface
-{
+public class FOPMR_DatabaseInterface {
 
     private static Connection connection;
     private static int queries;
 
-    public static Connection getConnection()
-    {
+    public static Connection getConnection() {
         queries++;
-        if(connection != null)
-        {
-            if(queries >= 2000)
-            {
+        if (connection != null) {
+            if (queries >= 2000) {
                 closeConnection(connection);
                 queries = 0;
                 connection = null;
                 return getConnection();
             }
-            try
-            {
-                if(connection.isClosed())
-                {
+            try {
+                if (connection.isClosed()) {
                     connection = null;
                     return getConnection();
                 }
                 connection.setAutoCommit(false);
                 return connection;
-            }
-            catch(SQLException ex)
-            {
+            } catch (SQLException ex) {
                 FreedomOpModRemastered.plugin.handleException(ex);
             }
-        }
-        else
-        {
-            try
-            {
+        } else {
+            try {
+                Class.forName("org.sqlite.JDBC");
                 connection = DriverManager.getConnection("jdbc:sqlite:" + FreedomOpModRemastered.plugin.getDataFolder().getAbsolutePath() + "/FOPMRData.db");
                 connection.setAutoCommit(false);
                 return connection;
-            }
-            catch(SQLException ex)
-            {
+            } catch (SQLException | ClassNotFoundException ex) {
                 FreedomOpModRemastered.plugin.handleException(ex);
+                Bukkit.broadcastMessage(ChatColor.RED + "LemonFreedomMod could not establish a connection to the SQLite database, therefore it has shut down to protect the server from potential damage.");
+                Bukkit.getPluginManager().disablePlugin(FreedomOpModRemastered.plugin);
             }
         }
         return connection;
     }
 
-    public static void prepareDatabase() throws SQLException
-    {
+    public static void prepareDatabase() throws SQLException {
         PreparedStatement statement = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS ANNOUNCEMENTS ("
                 + "ID INTEGER PRIMARY KEY,"
                 + "MESSAGE TEXT,"
@@ -145,11 +136,18 @@ public class FOPMR_DatabaseInterface
                 + "RANK TEXT,"
                 + "ONENABLE BOOLEAN)");
         statement.executeUpdate();
+        statement = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS VERIFICATION ("
+                + "ID INTEGER PRIMARY KEY,"
+                + "UUID TEXT UNIQUE,"
+                + "FORUMID INTEGER,"
+                + "CODE TEXT)"
+        );
+        statement.executeUpdate();
+
         getConnection().commit();
     }
 
-    public static void generateNewPlayer(Player player) throws SQLException
-    {
+    public static void generateNewPlayer(Player player) throws SQLException {
         Connection c = getConnection();
         PreparedStatement statement = c.prepareStatement("INSERT OR IGNORE INTO PLAYERS (UUID, NAME, IP, RANK, NICK, TAG, LOGIN, CHAT, IMPOSTER, BANHAMMER, BUILDER, DOUBLEJUMP, GODMODE, MUTE, FROZEN, CMDBLOCK, LASTLOGIN, CHATLEVEL) VALUES (?, ?, ?, 'Op', 'off&r', 'off&r', '', '', 0, 0, 0, 0, 0, 0, 0, 0, ?, 0)");
         statement.setString(1, StringEscapeUtils.escapeSql(player.getUniqueId().toString()));
@@ -160,8 +158,7 @@ public class FOPMR_DatabaseInterface
         c.commit();
     }
 
-    public static boolean updateInTable(String uniqueColumn, String uniqueValue, Object newValue, String columnToChange, String table) throws SQLException
-    {
+    public static boolean updateInTable(String uniqueColumn, String uniqueValue, Object newValue, String columnToChange, String table) throws SQLException {
         Connection c = getConnection();
         PreparedStatement statement = c.prepareStatement("UPDATE " + table + " SET " + columnToChange + " = ? WHERE " + uniqueColumn + " = ?");
         statement.setObject(1, newValue);
@@ -171,102 +168,82 @@ public class FOPMR_DatabaseInterface
         return i > 0;
     }
 
-    public static ResultSet getAllResults(String uniqueColumn, String uniqueValue, String inTable) throws SQLException
-    {
+    public static ResultSet getAllResults(String uniqueColumn, String uniqueValue, String inTable) throws SQLException {
         Connection c = getConnection();
         PreparedStatement statement = null;
-        if(uniqueColumn != null && uniqueValue != null)
-        {
+        if (uniqueColumn != null && uniqueValue != null) {
             statement = c.prepareStatement("SELECT * FROM " + inTable + " WHERE " + uniqueColumn + " = ?");
             statement.setString(1, uniqueValue);
-        }
-        else
-        {
+        } else {
             statement = c.prepareStatement("SELECT * FROM " + inTable + "");
         }
         return statement.executeQuery();
     }
 
-    public static ArrayList<Object> getAsArrayList(String uniqueColumn, String uniqueValue, String lookingFor, String inTable) throws SQLException
-    {
+    public static ArrayList<Object> getAsArrayList(String uniqueColumn, String uniqueValue, String lookingFor, String inTable) throws SQLException {
         ArrayList<Object> array = new ArrayList<>();
         Connection c = getConnection();
         PreparedStatement statement;
-        if(uniqueColumn != null && uniqueValue != null)
-        {
+        if (uniqueColumn != null && uniqueValue != null) {
             statement = c.prepareStatement("SELECT * FROM " + inTable + " WHERE " + uniqueColumn + " = ?");
             statement.setString(1, uniqueValue);
-        }
-        else
-        {
+        } else {
             statement = c.prepareStatement("SELECT * FROM " + inTable);
         }
         ResultSet set = statement.executeQuery();
-        while(set.next())
-        {
+        while (set.next()) {
             array.add(set.getObject(lookingFor));
         }
         return array;
     }
 
-    public static Object getFromTable(String uniqueColumn, String uniqueValue, String lookingFor, String inTable) throws SQLException
-    {
+    public static Object getFromTable(String uniqueColumn, String uniqueValue, String lookingFor, String inTable) throws SQLException {
         Connection c = getConnection();
         PreparedStatement statement = c.prepareStatement("SELECT * FROM " + inTable + " WHERE " + uniqueColumn + " = ?");
         statement.setString(1, uniqueValue);
         ResultSet res = statement.executeQuery();
-        if(res.next())
-        {
+        if (res.next()) {
             return res.getObject(lookingFor);
         }
         return null;
     }
 
-    public static Boolean getBooleanFromTable(String uniqueColumn, String uniqueValue, String lookingFor, String inTable) throws SQLException
-    {
+    public static Boolean getBooleanFromTable(String uniqueColumn, String uniqueValue, String lookingFor, String inTable) throws SQLException {
         int i = (Integer) getFromTable(uniqueColumn, uniqueValue, lookingFor, inTable);
         return i == 1;
     }
 
-    public static String getUuidFromName(String name) throws SQLException
-    {
+    public static String getUuidFromName(String name) throws SQLException {
         Connection c = getConnection();
         PreparedStatement statement = c.prepareStatement("SELECT * FROM PLAYERS WHERE NAME = ?");
         statement.setString(1, name);
         ResultSet res = statement.executeQuery();
-        if(res.next())
-        {
-            if(res.getObject("UUID") != null && res.getObject("UUID") instanceof String)
-            {
+        if (res.next()) {
+            if (res.getObject("UUID") != null && res.getObject("UUID") instanceof String) {
                 return (String) res.getObject("UUID");
             }
         }
         return null;
     }
 
-    public static String getIpFromName(String name) throws SQLException
-    {
+    public static String getIpFromName(String name) throws SQLException {
         Connection c = getConnection();
         PreparedStatement statement = c.prepareStatement("SELECT * FROM PLAYERS WHERE NAME = ?");
         statement.setString(1, name);
         ResultSet res = statement.executeQuery();
-        if(res.next())
-        {
-            if(res.getObject("IP") != null && res.getObject("IP") instanceof String)
-            {
+        if (res.next()) {
+            if (res.getObject("IP") != null && res.getObject("IP") instanceof String) {
                 return (String) res.getObject("IP");
             }
         }
         return null;
     }
 
-    public static boolean playerExists(String uuid) throws SQLException
-    {
+    public static boolean playerExists(String uuid) throws SQLException {
         return getFromTable("UUID", uuid, "NAME", "PLAYERS") != null;
     }
 
-    public static boolean existsInTable(String uniqueColumn, Object uniqueValue, String table) throws SQLException
-    {
+    public static boolean existsInTable(String uniqueColumn, Object uniqueValue, String table) throws SQLException {
         PreparedStatement statement = getConnection().prepareStatement("SELECT * FROM " + table + " WHERE ? = ?");
         statement.setString(1, uniqueColumn);
         statement.setObject(2, uniqueValue);
@@ -274,101 +251,78 @@ public class FOPMR_DatabaseInterface
         return set.next();
     }
 
-    public static String getLoginMessage(String uuid) throws SQLException
-    {
-        if(!playerExists(uuid))
-        {
+    public static String getLoginMessage(String uuid) throws SQLException {
+        if (!playerExists(uuid)) {
             return null;
         }
         Object obj = getFromTable("UUID", uuid, "LOGIN", "PLAYERS");
-        if(obj instanceof String)
-        {
+        if (obj instanceof String) {
             return (String) obj;
         }
         return null;
     }
 
-    public static String getRank(String uuid) throws SQLException
-    {
-        if(!playerExists(uuid))
-        {
+    public static String getRank(String uuid) throws SQLException {
+        if (!playerExists(uuid)) {
             return "Op";
         }
         Object obj = getFromTable("UUID", uuid, "RANK", "PLAYERS");
-        if(obj instanceof String)
-        {
+        if (obj instanceof String) {
             return (String) obj;
         }
         return "Op";
     }
 
-    public static String getTag(String uuid) throws SQLException
-    {
-        if(!playerExists(uuid))
-        {
+    public static String getTag(String uuid) throws SQLException {
+        if (!playerExists(uuid)) {
             return "&7[&c" + getRank(uuid) + "&7]";
         }
         Object obj = getFromTable("UUID", uuid, "TAG", "PLAYERS");
-        if(obj instanceof String)
-        {
+        if (obj instanceof String) {
             return (String) obj;
         }
         return "&7[&c" + getRank(uuid) + "&7]";
     }
 
-    public static String getNick(String uuid) throws SQLException
-    {
-        if(!playerExists(uuid))
-        {
+    public static String getNick(String uuid) throws SQLException {
+        if (!playerExists(uuid)) {
             return uuid;
         }
         Object obj = getFromTable("UUID", uuid, "NICK", "PLAYERS");
-        if(obj instanceof String)
-        {
+        if (obj instanceof String) {
             return (String) obj;
         }
         return uuid;
     }
 
-    public static boolean hasBanHammer(String uuid) throws SQLException
-    {
-        if(!playerExists(uuid))
-        {
+    public static boolean hasBanHammer(String uuid) throws SQLException {
+        if (!playerExists(uuid)) {
             return false;
         }
         Object obj = getFromTable("UUID", uuid, "BANHAMMER", "PLAYERS");
-        if(obj instanceof Boolean)
-        {
+        if (obj instanceof Boolean) {
             return (Boolean) obj;
         }
         return false;
     }
 
-    public static boolean isGod(String uuid) throws SQLException
-    {
-        if(!playerExists(uuid))
-        {
+    public static boolean isGod(String uuid) throws SQLException {
+        if (!playerExists(uuid)) {
             return false;
         }
         Object obj = getFromTable("UUID", uuid, "GODMODE", "PLAYERS");
-        if(obj instanceof Boolean)
-        {
+        if (obj instanceof Boolean) {
             return (Boolean) obj;
         }
         return false;
     }
 
-    public static void closeConnection(Connection connection)
-    {
-        try
-        {
-            if(connection != null)
-            {
+    public static void closeConnection(Connection connection) {
+        try {
+            if (connection != null) {
                 connection.close();
             }
-        }
-        catch(SQLException e)
-        {
+        } catch (SQLException e) {
             System.err.println(e);
         }
     }

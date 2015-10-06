@@ -15,33 +15,29 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.scheduler.BukkitRunnable;
 
-public class FOPMR_CamVerifyListener implements Listener
-{
+public final class FOPMR_CamVerifyListener implements Listener {
 
-    public FOPMR_CamVerifyListener()
-    {
-        if (!Bukkit.getPluginManager().isPluginEnabled("CamVerify"))
-        {
+    public FOPMR_CamVerifyListener() {
+        init();
+    }
+
+    public void init() {
+        if (!Bukkit.getPluginManager().isPluginEnabled("CamVerify")) {
             Bukkit.broadcastMessage(ChatColor.RED + "CamVerify cannot be found, disabling integration.");
             return;
         }
         Bukkit.getPluginManager().registerEvents(this, FreedomOpModRemastered.plugin);
     }
 
-    public static void close(final PrintWriter out, final BufferedReader in)
-    {
-        new BukkitRunnable()
-        {
+    public static void close(final PrintWriter out, final BufferedReader in) {
+        new BukkitRunnable() {
             @Override
-            public void run()
-            {
-                try
-                {
+            public void run() {
+                try {
                     out.flush();
                     out.close();
                     in.close();
-                } catch (IOException ex)
-                {
+                } catch (IOException ex) {
                     Logger.getLogger(FOPMR_CamVerifyListener.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
@@ -50,30 +46,25 @@ public class FOPMR_CamVerifyListener implements Listener
     }
 
     @EventHandler
-    public void onVerify(CamVerifyEvent event)
-    {
+    public void onVerify(CamVerifyEvent event) {
         final BufferedReader in = event.getIn();
         final PrintWriter out = event.getOut();
         String ip = event.getIp();
         String name;
-        try
-        {
-            if (!"5.135.233.93".equalsIgnoreCase(ip))
-            {
+        try {
+            if (!"5.135.233.93".equalsIgnoreCase(ip)) {
                 out.println("You are the wrong host, you are " + ip + " not 5.135.233.93");
                 close(out, in);
                 return;
             }
             name = in.readLine();
             Player player = Bukkit.getPlayer(name);
-            if (player == null)
-            {
+            if (player == null) {
                 out.println(name + " is not a valid player.");
                 close(out, in);
                 return;
             }
-            if (FOPMR_Rank.getRank(player) == FOPMR_Rank.Rank.IMPOSTER)
-            {
+            if (FOPMR_Rank.getRank(player) == FOPMR_Rank.Rank.IMPOSTER) {
                 FOPMR_Rank.unImposter(player);
                 out.println(name + " has been successfully verified.");
                 close(out, in);
@@ -82,8 +73,7 @@ public class FOPMR_CamVerifyListener implements Listener
             }
             out.println(name + " is not an imposter.");
             close(out, in);
-        } catch (IOException ex)
-        {
+        } catch (IOException ex) {
             Logger.getLogger(FOPMR_CamVerifyListener.class.getName()).log(Level.SEVERE, null, ex);
         }
     }

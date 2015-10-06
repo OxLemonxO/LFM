@@ -38,12 +38,15 @@ public class Command_createworld
             case "rollinghills":
                 pass = true;
                 break;
+            case "checker":
+                pass = true;
+                break;
             default:
                 pass = false;
         }
         if(!pass)
         {
-            sender.sendMessage(ChatColor.RED + "The available generators are: \"flat\", \"empty\", \"rollinghills\" and \"default\"");
+            sender.sendMessage(ChatColor.RED + "The available generators are: \"flat\", \"empty\", \"rollinghills\", \"checker\" and \"default\"");
             return true;
         }
         if(Bukkit.getWorld(args[0]) != null)

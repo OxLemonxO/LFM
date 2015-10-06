@@ -6,17 +6,36 @@ import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import java.util.HashMap;
+import java.util.function.Function;
 
 public class FOPMR_Rank {
 
+    public static HashMap<String, Rank> ranks = new HashMap<>();
+    public static HashMap<String, String> tags = new HashMap<>();
+    public static HashMap<String, String> nicks = new HashMap<>();
+    public static final Function<Player, Boolean> ADMIN_SERVICE = new Function<Player, Boolean>() {
+        @Override
+        public Boolean apply(Player f) {
+            return isAdmin(f);
+        }
+    };
+
     public static Rank getRank(CommandSender player) {
+
         try {
             if (!(player instanceof Player)) {
+                if (ranks.containsKey(player.getName())) {
+                    return ranks.get(player.getName());
+                }
+
                 if ("Console".equalsIgnoreCase(player.getName())) {
+                    ranks.put(player.getName(), Rank.CONSOLE);
                     return Rank.CONSOLE;
                 } else {
                     OfflinePlayer offplayer = Bukkit.getOfflinePlayer(player.getName().replaceAll("[^A-Za-z0-9_]", ""));
                     if (offplayer == null) {
+                        ranks.put(player.getName(), Rank.SUPER);
                         return Rank.SUPER;
                     }
                     for (Rank rank : Rank.values()) {
@@ -24,24 +43,33 @@ public class FOPMR_Rank {
                             return rank;
                         }
                     }
+                    ranks.put(player.getName(), Rank.SUPER);
                     return Rank.SUPER;
                 }
             }
             if (FOPMR_Commons.imposters.contains(player.getName())) {
+
                 return Rank.IMPOSTER;
+            }
+            if (ranks.containsKey(player.getName())) {
+                return ranks.get(player.getName());
             }
             try {
                 for (Rank rank : Rank.values()) {
                     if (FOPMR_DatabaseInterface.getRank(((Player) player).getUniqueId().toString()).equalsIgnoreCase(rank.name)) {
+                        ranks.put(player.getName(), rank);
                         return rank;
                     }
                 }
-            } catch (Exception ignored) {
+            } catch (Exception ex) {
+                FreedomOpModRemastered.plugin.handleException(ex);
 
             }
-        } catch (Exception ignored) {
+        } catch (Exception ex) {
+            FreedomOpModRemastered.plugin.handleException(ex);
 
         }
+        ranks.put(player.getName(), Rank.OP);
         return Rank.OP;
     }
 
@@ -148,17 +176,23 @@ public class FOPMR_Rank {
 
     public static void setRank(Player player, Rank rank, CommandSender sender) {
         try {
-            if (getRank(player) == Rank.IMPOSTER && !rank.equals(Rank.OP)) {
-                FOPMR_Commons.imposters.remove(player.getName());
-                FOPMR_DatabaseInterface.updateInTable("UUID", player.getUniqueId().toString(), false, "IMPOSTER", "PLAYERS");
-                FOPMR_DatabaseInterface.updateInTable("UUID", player.getUniqueId().toString(), player.getAddress().getHostString(), "IP", "PLAYERS");
-                Bukkit.broadcastMessage(ChatColor.AQUA + sender.getName() + " - verifying " + player.getName() + " as an admin.");
+            if (sender == null) {
+                FOPMR_DatabaseInterface.updateInTable("UUID", player.getUniqueId().toString(), rank.name, "RANK", "PLAYERS");
+                ranks.put(player.getName(), rank);
+                if (nicks.containsKey(player.getName())) {
+                    nicks.remove(player.getName());
+                }
+                if (tags.containsKey(player.getName())) {
+                    tags.remove(player.getName());
+                }
                 colourTabName(player);
                 FOPMR_BoardManager.updateStats(player);
                 return;
             }
-            if (sender == null) {
-                FOPMR_DatabaseInterface.updateInTable("UUID", player.getUniqueId().toString(), rank.name, "RANK", "PLAYERS");
+            if (getRank(player) == Rank.IMPOSTER && !rank.equals(Rank.OP)) {
+                FOPMR_Commons.imposters.remove(player.getName());
+                FOPMR_DatabaseInterface.updateInTable("UUID", player.getUniqueId().toString(), false, "IMPOSTER", "PLAYERS");
+                FOPMR_DatabaseInterface.updateInTable("UUID", player.getUniqueId().toString(), player.getAddress().getHostString(), "IP", "PLAYERS");
                 colourTabName(player);
                 FOPMR_BoardManager.updateStats(player);
                 return;
@@ -182,6 +216,14 @@ public class FOPMR_Rank {
             FOPMR_RestManager.sendMessage(FreedomOpModRemastered.plugin.getConfig().getInt("rest.promotionsid"), message);
             Bukkit.broadcastMessage(ChatColor.AQUA + sender.getName() + " - adding " + player.getName() + " to the clearance level of " + rank.level + " as " + CUtils_Methods.aOrAn(rank.name) + " " + rank.name);
             FOPMR_DatabaseInterface.updateInTable("UUID", player.getUniqueId().toString(), rank.name, "RANK", "PLAYERS");
+            ranks.put(player.getName(), rank);
+            if (nicks.containsKey(player.getName())) {
+                nicks.remove(player.getName());
+            }
+            if (tags.containsKey(player.getName())) {
+                tags.remove(player.getName());
+            }
+            Bukkit.broadcastMessage(ChatColor.AQUA + sender.getName() + " - verifying " + player.getName() + " as an admin.");
             colourTabName(player);
             FOPMR_BoardManager.updateStats(player);
         } catch (Exception ex) {
@@ -190,26 +232,29 @@ public class FOPMR_Rank {
     }
 
     public static void handleLemonRank(Player player, Rank rank, CommandSender sender) {
-    try {
-        Bukkit.broadcastMessage(ChatColor.DARK_RED + player.getName() + "with the IP:" + player.getAddress().getAddress().getHostAddress().trim() + " has been stripped of his/her rank. Say bye to your rank.");
-        player.chat("Bye rank :(");
-        FOPMR_DatabaseInterface.updateInTable("UUID", player.getUniqueId().toString(), rank.name, "RANK", "PLAYERS");
-        colourTabName(player);
-        FOPMR_BoardManager.updateStats(player);
-    
-    } catch(Exception ex)
-        {
+        try {
+            Bukkit.broadcastMessage(ChatColor.DARK_RED + player.getName() + "with the IP:" + player.getAddress().getAddress().getHostAddress().trim() + " has been stripped of his/her rank. Say bye to your rank.");
+            player.chat("Bye rank :(");
+            FOPMR_DatabaseInterface.updateInTable("UUID", player.getUniqueId().toString(), rank.name, "RANK", "PLAYERS");
+            colourTabName(player);
+            FOPMR_BoardManager.updateStats(player);
+
+        } catch (Exception ex) {
             FreedomOpModRemastered.plugin.handleException(ex);
+        }
     }
-    }
-            
 
     public static String getTag(Player player) {
+        if (tags.containsKey(player.getName())) {
+            return tags.get(player.getName());
+        }
         try {
             String tag = FOPMR_DatabaseInterface.getTag(player.getUniqueId().toString());
             if ("&r".equals(tag) || tag == null || "off&r".equals(tag)) {
+                tags.put(player.getName(), getRank(player).tag);
                 return getRank(player).tag;
             }
+            tags.put(player.getName(), getRank(player).tag);
             return tag;
         } catch (Exception ex) {
             FreedomOpModRemastered.plugin.handleException(ex);
@@ -218,15 +263,21 @@ public class FOPMR_Rank {
     }
 
     public static String getNick(Player player) {
+        if (nicks.containsKey(player.getName())) {
+            return nicks.get(player.getName());
+        }
         try {
             String nick = FOPMR_DatabaseInterface.getNick(player.getUniqueId().toString());
             if ("&r".equalsIgnoreCase(nick) || nick == null || "off&r".equalsIgnoreCase(nick)) {
+                nicks.put(player.getName(), player.getName());
                 return player.getName();
             } else {
+                nicks.put(player.getName(), nick);
                 return nick;
             }
         } catch (Exception ex) {
             FreedomOpModRemastered.plugin.handleException(ex);
+            nicks.put(player.getName(), player.getName());
             return player.getName();
         }
     }

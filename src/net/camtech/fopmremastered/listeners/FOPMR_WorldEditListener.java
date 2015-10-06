@@ -14,25 +14,23 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
 //MASSIVE CREDIT TO TOTALFREEDOM FOR THIS!
-public class FOPMR_WorldEditListener implements Listener
-{
+public final class FOPMR_WorldEditListener implements Listener {
 
-    public FOPMR_WorldEditListener()
-    {
+    public FOPMR_WorldEditListener() {
+        init();
+    }
+
+    public void init() {
         Bukkit.getPluginManager().registerEvents(this, FreedomOpModRemastered.plugin);
     }
 
     @EventHandler
-    public void onSelectionChange(final SelectionChangedEvent event)
-    {
+    public void onSelectionChange(final SelectionChangedEvent event) {
         final Player player = event.getPlayer();
         ArrayList<FOPMR_ProtectedArea> areas = FOPMR_ProtectedAreas.areasIn(event.getMinVector(), event.getMaxVector(), event.getWorld().getName());
-        if(!areas.isEmpty())
-        {
-            for(FOPMR_ProtectedArea area : areas)
-            {
-                if(!area.canAccess(player))
-                {
+        if (!areas.isEmpty()) {
+            for (FOPMR_ProtectedArea area : areas) {
+                if (!area.canAccess(player)) {
                     player.sendMessage(ChatColor.RED + "The region that you selected contained a protected area which you do not have access to. Selection cleared.");
                     event.setCancelled(true);
                 }
@@ -41,23 +39,19 @@ public class FOPMR_WorldEditListener implements Listener
     }
 
     @EventHandler
-    public void onLimitChanged(LimitChangedEvent event)
-    {
+    public void onLimitChanged(LimitChangedEvent event) {
         final Player player = event.getPlayer();
 
-        if(FOPMR_Rank.isAdmin(player))
-        {
+        if (FOPMR_Rank.isAdmin(player)) {
             return;
         }
 
-        if(!event.getPlayer().equals(event.getTarget()))
-        {
+        if (!event.getPlayer().equals(event.getTarget())) {
             player.sendMessage(ChatColor.RED + "Only admins can change the limit for other players!");
             event.setCancelled(true);
         }
 
-        if(event.getLimit() < 0 || event.getLimit() > 50000)
-        {
+        if (event.getLimit() < 0 || event.getLimit() > 50000) {
             event.setCancelled(true);
             player.sendMessage(ChatColor.RED + "You cannot set your limit higher than 50000 or to -1!");
         }

@@ -10,7 +10,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import static net.camtech.fopmremastered.listeners.FOPMR_CamVerifyListener.close;
+import org.bukkit.scheduler.BukkitRunnable;
 
 public class SocketServer implements Runnable
 {
@@ -30,6 +30,7 @@ public class SocketServer implements Runnable
         }
     }
 
+    @Override
     public void run()
     {
         while(true)
@@ -86,6 +87,28 @@ public class SocketServer implements Runnable
 
             }
         }
+    }
+
+    public static void close(final PrintWriter out, final BufferedReader in)
+    {
+        new BukkitRunnable()
+        {
+            @Override
+            public void run()
+            {
+                try
+                {
+                    out.flush();
+                    out.close();
+                    in.close();
+                }
+                catch(IOException ex)
+                {
+                    FreedomOpModRemastered.plugin.handleException(ex);
+                }
+            }
+        }.runTaskLater(FreedomOpModRemastered.plugin, 20L * 2L);
+
     }
 
 }

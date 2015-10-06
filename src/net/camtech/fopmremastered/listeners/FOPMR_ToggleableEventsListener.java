@@ -31,138 +31,108 @@ import org.bukkit.event.weather.WeatherChangeEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
-public class FOPMR_ToggleableEventsListener implements Listener
-{
+public final class FOPMR_ToggleableEventsListener implements Listener {
 
-    public FOPMR_ToggleableEventsListener()
-    {
+    public FOPMR_ToggleableEventsListener() {
+        init();
+    }
+
+    public void init() {
         Bukkit.getPluginManager().registerEvents(this, FreedomOpModRemastered.plugin);
         checkTime();
     }
 
-    public static void checkTime()
-    {
-        if (!FreedomOpModRemastered.plugin.getConfig().getBoolean("toggles.time"))
-        {
-            for (World world : Bukkit.getWorlds())
-            {
+    public static void checkTime() {
+        if (!FreedomOpModRemastered.plugin.getConfig().getBoolean("toggles.time")) {
+            for (World world : Bukkit.getWorlds()) {
                 world.setGameRuleValue("doDaylightCycle", "false");
             }
-        }
-        else
-        {
-            for (World world : Bukkit.getWorlds())
-            {
+        } else {
+            for (World world : Bukkit.getWorlds()) {
                 world.setGameRuleValue("doDaylightCycle", "true");
             }
         }
     }
 
     @EventHandler
-    public void onExplode(EntityExplodeEvent event)
-    {
-        if (!FreedomOpModRemastered.plugin.getConfig().getBoolean("toggles.explosions"))
-        {
+    public void onExplode(EntityExplodeEvent event) {
+        if (!FreedomOpModRemastered.plugin.getConfig().getBoolean("toggles.explosions")) {
             event.setCancelled(true);
         }
     }
 
     @EventHandler
-    public void onItemUse(PlayerInteractEvent event)
-    {
+    public void onItemUse(PlayerInteractEvent event) {
         Player player = event.getPlayer();
-        if (event.getItem() == null)
-        {
+        if (event.getItem() == null) {
             return;
         }
         ItemStack item = event.getItem();
-        if ((item.getType() == Material.WATER || item.getType() == Material.WATER_BUCKET || item.getType() == Material.STATIONARY_WATER) && !FOPMR_Rank.isAdmin(player) && !FreedomOpModRemastered.plugin.getConfig().getBoolean("toggles.waterplace"))
-        {
+        if ((item.getType() == Material.WATER || item.getType() == Material.WATER_BUCKET || item.getType() == Material.STATIONARY_WATER) && !FOPMR_Rank.isAdmin(player) && !FreedomOpModRemastered.plugin.getConfig().getBoolean("toggles.waterplace")) {
             event.setCancelled(true);
         }
-        if ((item.getType() == Material.LAVA || item.getType() == Material.LAVA_BUCKET || item.getType() == Material.STATIONARY_LAVA) && !FOPMR_Rank.isAdmin(player) && !FreedomOpModRemastered.plugin.getConfig().getBoolean("toggles.lavaplace"))
-        {
+        if ((item.getType() == Material.LAVA || item.getType() == Material.LAVA_BUCKET || item.getType() == Material.STATIONARY_LAVA) && !FOPMR_Rank.isAdmin(player) && !FreedomOpModRemastered.plugin.getConfig().getBoolean("toggles.lavaplace")) {
             event.setCancelled(true);
         }
-        if (item.getType() == Material.TNT && !FOPMR_Rank.isAdmin(player) && !FreedomOpModRemastered.plugin.getConfig().getBoolean("toggles.lavaplace"))
-        {
+        if (item.getType() == Material.TNT && !FOPMR_Rank.isAdmin(player) && !FreedomOpModRemastered.plugin.getConfig().getBoolean("toggles.lavaplace")) {
             event.setCancelled(true);
         }
-        if ((item.getType() == Material.FLINT_AND_STEEL || item.getType() == Material.FIRE || item.getType() == Material.FIREBALL) && !FOPMR_Rank.isAdmin(player) && !FreedomOpModRemastered.plugin.getConfig().getBoolean("toggles.fire"))
-        {
+        if ((item.getType() == Material.FLINT_AND_STEEL || item.getType() == Material.FIRE || item.getType() == Material.FIREBALL) && !FOPMR_Rank.isAdmin(player) && !FreedomOpModRemastered.plugin.getConfig().getBoolean("toggles.fire")) {
             event.setCancelled(true);
         }
     }
 
     @EventHandler
-    public void onBlockSpread(BlockSpreadEvent event)
-    {
-        if (event.getBlock().getType() == Material.FIRE && !FreedomOpModRemastered.plugin.getConfig().getBoolean("toggles.fire"))
-        {
-            event.setCancelled(true);
-        }
-    }
-    
-    @EventHandler
-    public void onBlockIgnite(BlockIgniteEvent event)
-    {
-        if(!FreedomOpModRemastered.plugin.getConfig().getBoolean("toggles.fire"))
-        {
+    public void onBlockSpread(BlockSpreadEvent event) {
+        if (event.getBlock().getType() == Material.FIRE && !FreedomOpModRemastered.plugin.getConfig().getBoolean("toggles.fire")) {
             event.setCancelled(true);
         }
     }
 
     @EventHandler
-    public void onLiquidSpread(BlockFromToEvent event)
-    {
-        if ((event.getBlock().getType() == Material.WATER || event.getBlock().getType() == Material.STATIONARY_WATER) && !FreedomOpModRemastered.plugin.getConfig().getBoolean("toggles.waterspread"))
-        {
-            event.setCancelled(true);
-        }
-        if ((event.getBlock().getType() == Material.LAVA || event.getBlock().getType() == Material.STATIONARY_LAVA) && !FreedomOpModRemastered.plugin.getConfig().getBoolean("toggles.lavaspread"))
-        {
+    public void onBlockIgnite(BlockIgniteEvent event) {
+        if (!FreedomOpModRemastered.plugin.getConfig().getBoolean("toggles.fire")) {
             event.setCancelled(true);
         }
     }
 
     @EventHandler
-    public void onEntityHit(EntityDamageEvent event)
-    {
+    public void onLiquidSpread(BlockFromToEvent event) {
+        if ((event.getBlock().getType() == Material.WATER || event.getBlock().getType() == Material.STATIONARY_WATER) && !FreedomOpModRemastered.plugin.getConfig().getBoolean("toggles.waterspread")) {
+            event.setCancelled(true);
+        }
+        if ((event.getBlock().getType() == Material.LAVA || event.getBlock().getType() == Material.STATIONARY_LAVA) && !FreedomOpModRemastered.plugin.getConfig().getBoolean("toggles.lavaspread")) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onEntityHit(EntityDamageEvent event) {
         Entity entity = event.getEntity();
-        if (entity instanceof LivingEntity)
-        {
+        if (entity instanceof LivingEntity) {
             LivingEntity lentity = (LivingEntity) entity;
-            if (lentity instanceof Tameable)
-            {
+            if (lentity instanceof Tameable) {
                 Tameable tentity = (Tameable) lentity;
-                if (tentity.isTamed() && !FreedomOpModRemastered.plugin.getConfig().getBoolean("toggles.petdamage"))
-                {
+                if (tentity.isTamed() && !FreedomOpModRemastered.plugin.getConfig().getBoolean("toggles.petdamage")) {
                     event.setCancelled(true);
                 }
             }
         }
-        if (event.getCause() == DamageCause.ENTITY_EXPLOSION && !FreedomOpModRemastered.plugin.getConfig().getBoolean("toggles.explosions"))
-        {
+        if (event.getCause() == DamageCause.ENTITY_EXPLOSION && !FreedomOpModRemastered.plugin.getConfig().getBoolean("toggles.explosions")) {
             event.setCancelled(true);
         }
     }
-    
+
     @EventHandler
-    public void onEntityDie(EntityDeathEvent event)
-    {
+    public void onEntityDie(EntityDeathEvent event) {
         final Location loc = event.getEntity().getLocation();
-        if(!FreedomOpModRemastered.plugin.getConfig().getBoolean("toggles.drops"))
-        {
+        if (!FreedomOpModRemastered.plugin.getConfig().getBoolean("toggles.drops")) {
             event.setDroppedExp(0);
-            new BukkitRunnable()
-            {
+            new BukkitRunnable() {
                 @Override
-                public void run()
-                {
-                    for(Entity entity : loc.getWorld().getEntities())
-                    {
-                        if(!(entity instanceof LivingEntity) && entity.getLocation().distance(loc) < 10)
-                        {
+                public void run() {
+                    for (Entity entity : loc.getWorld().getEntities()) {
+                        if (!(entity instanceof LivingEntity) && entity.getLocation().distance(loc) < 10) {
                             entity.remove();
                         }
                     }
@@ -172,68 +142,48 @@ public class FOPMR_ToggleableEventsListener implements Listener
     }
 
     @EventHandler
-    public void onWeatherChange(WeatherChangeEvent event)
-    {
-        if (event.toWeatherState() && !FreedomOpModRemastered.plugin.getConfig().getBoolean("toggles.weather"))
-        {
+    public void onWeatherChange(WeatherChangeEvent event) {
+        if (event.toWeatherState() && !FreedomOpModRemastered.plugin.getConfig().getBoolean("toggles.weather")) {
             event.setCancelled(true);
         }
     }
 
     @EventHandler
-    public void onPlayerDropItem(PlayerDropItemEvent event)
-    {
+    public void onPlayerDropItem(PlayerDropItemEvent event) {
         Player player = event.getPlayer();
         Entity item = event.getItemDrop();
-        if (!FreedomOpModRemastered.plugin.getConfig().getBoolean("toggles.drops"))
-        {
+        if (!FreedomOpModRemastered.plugin.getConfig().getBoolean("toggles.drops")) {
             item.remove();
         }
     }
 
     @EventHandler
-    public void onCreatureSpawn(CreatureSpawnEvent event)
-    {
-        if (event.getSpawnReason().equals(CreatureSpawnEvent.SpawnReason.EGG))
-        {
+    public void onCreatureSpawn(CreatureSpawnEvent event) {
+        if (event.getSpawnReason().equals(CreatureSpawnEvent.SpawnReason.EGG)) {
             event.setCancelled(true);
             return;
         }
 
         Entity spawned = event.getEntity();
 
-        if (spawned instanceof EnderDragon)
-        {
-            if (!FreedomOpModRemastered.plugin.getConfig().getBoolean("toggles.enderdragon"))
-            {
+        if (spawned instanceof EnderDragon) {
+            if (!FreedomOpModRemastered.plugin.getConfig().getBoolean("toggles.enderdragon")) {
                 event.setCancelled(true);
             }
-        }
-        else if (spawned instanceof Ghast)
-        {
-            if (!FreedomOpModRemastered.plugin.getConfig().getBoolean("toggles.ghast"))
-            {
+        } else if (spawned instanceof Ghast) {
+            if (!FreedomOpModRemastered.plugin.getConfig().getBoolean("toggles.ghast")) {
                 event.setCancelled(true);
             }
-        }
-        else if (spawned instanceof Slime)
-        {
-            if (!FreedomOpModRemastered.plugin.getConfig().getBoolean("toggles.slime"))
-            {
+        } else if (spawned instanceof Slime) {
+            if (!FreedomOpModRemastered.plugin.getConfig().getBoolean("toggles.slime")) {
                 event.setCancelled(true);
             }
-        }
-        else if (spawned instanceof Giant)
-        {
-            if (!FreedomOpModRemastered.plugin.getConfig().getBoolean("toggles.giant"))
-            {
+        } else if (spawned instanceof Giant) {
+            if (!FreedomOpModRemastered.plugin.getConfig().getBoolean("toggles.giant")) {
                 event.setCancelled(true);
             }
-        }
-        else if (spawned instanceof Wither)
-        {
-            if(!FreedomOpModRemastered.plugin.getConfig().getBoolean("toggles.wither"))
-            {
+        } else if (spawned instanceof Wither) {
+            if (!FreedomOpModRemastered.plugin.getConfig().getBoolean("toggles.wither")) {
                 event.setCancelled(true);
             }
         }

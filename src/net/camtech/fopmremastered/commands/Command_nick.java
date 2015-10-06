@@ -6,7 +6,7 @@ import java.util.Arrays;
 import net.camtech.camutils.CUtils_Methods;
 import net.camtech.fopmremastered.FOPMR_DatabaseInterface;
 import net.camtech.fopmremastered.FreedomOpModRemastered;
-import org.apache.commons.lang.StringEscapeUtils;
+import net.camtech.fopmremastered.FOPMR_Rank;
 import org.apache.commons.lang3.StringUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -72,6 +72,7 @@ public class Command_nick extends FOPMR_Command
             statement.setString(1, nick + "&r");
             statement.setString(2, player.getUniqueId().toString());
             statement.executeUpdate();
+            FOPMR_Rank.nicks.put(player.getName(), nick + "&r");
             c.commit();
         }
         catch(Exception ex)

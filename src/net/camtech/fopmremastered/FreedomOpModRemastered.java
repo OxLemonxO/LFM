@@ -12,6 +12,8 @@ import net.camtech.fopmremastered.listeners.FOPMR_JumpListener;
 import net.camtech.fopmremastered.listeners.FOPMR_PlayerListener;
 import net.camtech.fopmremastered.listeners.FOPMR_TelnetListener;
 import net.camtech.fopmremastered.listeners.FOPMR_ToggleableEventsListener;
+import java.util.function.Function;
+import org.bukkit.plugin.ServicePriority;
 import net.camtech.fopmremastered.listeners.FOPMR_WorldEditListener;
 import net.camtech.fopmremastered.FOPMR_Commons;
 import net.camtech.fopmremastered.worlds.FOPMR_WorldManager;
@@ -70,7 +72,7 @@ public class FreedomOpModRemastered extends JavaPlugin
         this.saveDefaultConfig();
         if(!config.getBoolean("general.owner"))
         {
-            System.out.println("Welcome to the FreedomOpMod: Remastered, an Owner has not yet been defined, to set yourself to Owner please run \"/owner " + FOPMR_Commons.verifyCode + "\" in-game to set yourself to the Owner rank!");
+            System.out.println("Welcome to LemonFreedomMod, an Owner has not yet been defined, to set yourself to Owner please run \"/owner " + FOPMR_Commons.verifyCode + "\" in-game to set yourself to the Owner rank!");
         }
         else
         {
@@ -94,6 +96,7 @@ public class FreedomOpModRemastered extends JavaPlugin
             }
         }
         FOPMR_RestManager.sendMessage(config.getInt("rest.statusid"), "FreedomOpMod: Remastered has just been enabled.");
+        this.getServer().getServicesManager().register(Function.class, FOPMR_Rank.ADMIN_SERVICE, plugin, ServicePriority.Highest);
         socketServer = new SocketServer();
         thread = new Thread(socketServer);
         thread.start();

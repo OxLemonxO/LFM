@@ -82,10 +82,10 @@ public class Command_admin
                             case "System Admin":
                                 systems.add(res.getString("NAME"));
                                 break;
-                            case "Owner":
+                            case "Co-Owner":
                                 owners.add(res.getString("NAME"));
                                 break;
-                            case "Overlord":
+                            case "Owner":
                                 owners.add(res.getString("NAME"));
                                 break;
                             default:

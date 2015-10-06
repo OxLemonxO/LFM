@@ -21,13 +21,7 @@ public class Command_multirun extends FOPMR_Command
         if (args.length < 2)
         {
             return false;
-        }
-        
-        if (args[1].equals("vj"))
-        {
-            sender.sendMessage(ChatColor.RED + "WHAT THE FUCK ARE YOU TRYING TO DO, YOU FUCKED UP ASSHOLE?!");
-            return true;
-        }
+        }      
         
         if (Integer.parseInt(args[0]) == 1 || Integer.parseInt(args[0]) == 0)
         {
