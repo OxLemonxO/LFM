@@ -21,13 +21,13 @@ public class Command_cake extends FOPMR_Command
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
     {
-        Bukkit.broadcastMessage(CUtils_Methods.randomChatColour() + sender.getName() + " - Happy Birthday to " + CUtils_Methods.randomChatColour() + "Camzie99!");   
+        Bukkit.broadcastMessage(CUtils_Methods.randomChatColour() + sender.getName() + " - Everyone loves Cake! " + CUtils_Methods.randomChatColour() + "Enjoy!");   
         for (Player player : Bukkit.getOnlinePlayers())
         {
             ItemStack cookie = new ItemStack(Material.CAKE, 1);
             ItemMeta cookiemeta = cookie.getItemMeta();
-            cookiemeta.setLore(Arrays.asList(CUtils_Methods.randomChatColour() + "Wishing Camzie99 a very happy birthday! :)", CUtils_Methods.randomChatColour() + " - " + sender.getName()));
-            cookiemeta.setDisplayName(CUtils_Methods.randomChatColour() + "Camzie99's Birthday Cake!");
+            cookiemeta.setLore(Arrays.asList(CUtils_Methods.randomChatColour() + "Keep on trying 'til you run out of cake :)", CUtils_Methods.randomChatColour() + " - " + sender.getName()));
+            cookiemeta.setDisplayName(CUtils_Methods.randomChatColour() + "The Lie");
             cookie.setItemMeta(cookiemeta);
             player.getInventory().addItem(cookie);
         }
