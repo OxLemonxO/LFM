@@ -17,6 +17,7 @@ public class Command_admininfo
         }
         sender.sendMessage(CUtils_Methods.randomChatColour() + "Interested in becoming an admin?");
         sender.sendMessage(CUtils_Methods.randomChatColour() + "Then apply here: " + FreedomOpModRemastered.plugin.getConfig().getString("general.admininfo"));
+        sender.sendMessage(CUtils_Methods.randomChatColour() + "Ensure you use the template to avoid an auto-denial!");
         return true;
     }
 }
